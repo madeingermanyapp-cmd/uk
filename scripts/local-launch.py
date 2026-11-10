@@ -23,7 +23,11 @@ try:
     run(*compose,'up','-d','--build','--wait','--wait-timeout','240')
     run(*compose,'exec','-T','--user','www-data','app','php','scripts/manor-init.php')
     url=f'http://localhost:{values["LOCAL_PORT"]}'
-    print(f'Website: {url}\nAdmin: {url}/admin/manor\nLocal admin: {values["ADMIN_EMAIL"]}\nPassword is stored privately in {config} (ADMIN_PASSWORD).\nRepeated starts preserve your database.')
+    access=local/'DOCKER_ADMIN_ACCESS.txt'
+    access.write_text(f'WONHAM MANOR HOUSE — LOCAL DOCKER PREVIEW\n\nWebsite: {url}\nAdmin: {url}/admin/manor\nUsername / email: {values["ADMIN_EMAIL"]}\nInitial password: {values["ADMIN_PASSWORD"]}\n\nIf you changed the password in Admin, use your updated password.\nThis private local file is excluded from Git.\n')
+    try: access.chmod(0o600)
+    except OSError: pass
+    print(f'Website: {url}\nAdmin: {url}/admin/manor\nLocal admin: {values["ADMIN_EMAIL"]}\nInitial login details are stored privately in {access}.\nRepeated starts preserve your database.')
     if os.environ.get('MANOR_SKIP_BROWSER')!='1': webbrowser.open(url)
 except (subprocess.CalledProcessError,OSError) as exc:
     sys.exit(f'Launch failed: {exc}. Check Docker is running, the selected port is free and Docker Compose logs. Existing data has not been reset.')

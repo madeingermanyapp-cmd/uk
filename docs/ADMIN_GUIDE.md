@@ -1,6 +1,6 @@
 # Management guide — Wonham Manor House
 
-Sign in at `/admin/login`, then open `/admin/manor`. The venue console requires an operator account. Existing business-user accounts cannot manage private venue enquiries. Use **Settings → Administrator account** to change your name, email or password; the current password is required. Keep the generated bootstrap credential file private.
+Sign in at `/admin/login`, then open `/admin/manor`. The venue console requires an operator account. Existing business-user accounts cannot manage private venue enquiries. Use **Settings → Administrator account** to change your name, email or password; the current password is required. The one-click launcher writes your local username and initial password to `.local/DOCKER_ADMIN_ACCESS.txt` (excluded from Git, mode 0600 where supported). This file is for the Docker preview. If you change your password in Admin, use the new password; repeated startup never resets it. Keep the generated bootstrap credential file private.
 
 ## Setup and settings
 
