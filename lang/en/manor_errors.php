@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 return [
+'f432b81d4a612283'=>"Choose a website section or venue.",
+'e57c69cd0de54885f'=>"Branding requires an image.",
+'e1589e1106f2d582'=>"Media placement changed. Reload this page and try again.",
 '803cd58720952553'=>"A manual attendance reason is required.",
 '3d2fbee4d9bce7ba'=>"A physical room cannot contain other rentable units.",
 '4f2bf0e79178781b'=>"A positive mandatory non-refundable base booking charge is required.",

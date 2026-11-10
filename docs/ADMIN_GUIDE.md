@@ -49,3 +49,11 @@ Uploads begin protected. Record their source/publication rights and approval; ap
 Configure SMTP, sender and templates in Settings. Passwords are encrypted at rest, are never returned by the UI/API and are retained when the password field is blank. Use the explicit clear control to remove one. Test Email records transport success; log-only mail is not represented as delivered SMTP. Email logs, outbox status and retry controls are available. The Compose worker processes queued messages and records a heartbeat. Optional notification preferences take effect on the backend.
 
 Deployment Readiness runs actual checks for URL/HTTPS, SMTP test results, writable storage, recent jobs, recorded backup, content publication, payment configuration, authentication/debug/installer state and source notices. Pending configuration is expected locally. Green local transport tests do not establish public DNS, mailbox deliverability, business approval or production TLS. Configure these later without rebuilding application code.
+
+## Change a photograph
+
+Open **Settings > Media**. Each placement shows its photograph and a readable section or venue name. Choose a replacement file and click **Replace in draft**, or reuse a library photo with **Use in this section / venue**. Reorder gallery entries with **Move up / Move down**. Replacement creates a draft and retains the current published photograph.
+
+Approve the new asset in **Media library** with its source/usage record, review **Preview current draft**, then open **Website content** and publish the approved draft. The latest published content is the baseline for subsequent edits; older drafts never silently replace live content. Removing a placement keeps the library asset available for reuse. Removing a library asset withdraws that asset everywhere.
+
+Client-requested reference property/gathering photographs and the additional property photograph were uploaded through these normal controls to both local previews on 10 November 2026. Their recorded source is the supplied reference/new photograph and the client's explicit usage instruction, without independently claiming copyright ownership. These are runtime media and database configuration, preserved through the documented backup/restore workflow rather than committed as uploaded files to Git.

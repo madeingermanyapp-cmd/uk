@@ -1,5 +1,18 @@
 <?php
 return [
+    'media_slot_hero'=>'الصورة الرئيسية',
+    'media_slot_heritage'=>'صور التراث',
+    'media_slot_why'=>'لماذا وونهام - صورة العقار',
+    'media_slot_why_wide'=>'لماذا وونهام - الصورة العريضة',
+    'media_slot_faq'=>'صورة الأسئلة الشائعة',
+    'media_slot_contact'=>'صورة التواصل',
+    'media_slot_logo'=>'شعار الموقع',
+    'media_slot_favicon'=>'أيقونة المتصفح',
+    'media_edit_help'=>'اختر قسمًا أو مكانًا، ثم ارفع صورة أو أعد استخدامها وعاين المسودة. اعتمد الصور الجديدة من المكتبة وانشر من محتوى الموقع. يظل المحتوى المنشور ظاهرًا أثناء تعديل المسودة.',
+    'replace_image'=>'اختر الصورة أو الفيديو البديل',
+    'replace_draft_media'=>'استبدال في المسودة',
+    'media_library'=>'مكتبة الوسائط',
+    'use_media_here'=>'استخدم في هذا القسم أو المكان',
     'begin_your_occasion'=>"ابدأ التخطيط لمناسبتك",
     'make_an_enquiry'=>"أرسل طلب حجز.",
     'enquiries_are_currently_closed'=>"استقبال طلبات الحجز مغلق حالياً.",

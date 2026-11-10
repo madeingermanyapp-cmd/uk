@@ -49,9 +49,11 @@ final class SettingsController
                 case 'publish':Content::publish($r->string('version_id'),$r->bool('approved'));break;
                 case 'page':Content::page($r->all());break;
                 case 'media_upload':$url=Files::media($r->file('media')??[]);$draft=Content::draft()['data'];$draft['media'][]=['url'=>$url,'alt'=>$r->string('alt'),'section'=>$r->string('section'),'kind'=>str_ends_with($url,'.mp4')?'video':'image'];if(in_array($r->string('section'),['logo','favicon'],true))$draft[$r->string('section').'_url']=$url;Content::saveDraft($draft);break;
+                case 'media_assign':$this->assignMedia($r);break;
+                case 'media_replace':$this->replaceMedia($r);break;
                 case 'media_review':Content::mediaReview($r->string('media_id'),$r->string('alt'),$r->string('rights'),$r->bool('approved'));break;
                 case 'media_remove':Content::removeMedia($r->string('media_id'));break;
-                case 'media_entry_remove':$draft=Content::draft()['data'];$i=$r->int('index',-1);if(!isset($draft['media'][$i]))throw new \DomainException('Invalid media ordering request.');array_splice($draft['media'],$i,1);Content::saveDraft($draft);break;
+                case 'media_entry_remove':$draft=Content::draft()['data'];$i=$r->int('index',-1);if(!isset($draft['media'][$i]))throw new \DomainException('Invalid media ordering request.');$removed=$draft['media'][$i];array_splice($draft['media'],$i,1);if(in_array($removed['section']??'',['logo','favicon'],true)&&($draft[$removed['section'].'_url']??'')===$removed['url'])$draft[$removed['section'].'_url']='';Content::saveDraft($draft);break;
                 case 'media_order':$this->orderMedia($r);break;
                 case 'external_media':$draft=Content::draft()['data'];Settings::url($r->string('url'));$draft['media'][]=['url'=>$r->string('url'),'alt'=>$r->string('alt'),'section'=>$r->string('section'),'kind'=>'video','rights'=>$r->string('rights'),'rights_approved'=>$r->bool('approved')];Content::saveDraft($draft);break;
                 case 'documents':$this->documents($r);break;
@@ -77,6 +79,33 @@ final class SettingsController
         $draft['navigation']=[];foreach(($r->all()['nav_labels']??[]) as $i=>$label)if(trim($label))$draft['navigation'][]=['label'=>mb_substr($label,0,100),'url'=>$r->all()['nav_urls'][$i]??''];
         $draft['translated_content']['ar']['navigation']=[];foreach(($r->all()['nav_labels_ar']??[]) as $i=>$label)if(trim($label))$draft['translated_content']['ar']['navigation'][]=['label'=>mb_substr($label,0,100),'url'=>$r->all()['nav_urls_ar'][$i]??''];
         Content::saveDraft($draft);
+    }
+    private function assignMedia(Request $r): void
+    {
+        Inventory::run(function()use($r){
+            $asset=DB::query('SELECT * FROM manor_media WHERE id=? AND deleted_at IS NULL',[$r->string('media_id')])[0]??null;
+            if(!$asset)throw new \DomainException('Media asset not found.');
+            $section=$r->string('section');
+            if(!in_array($section,['hero','heritage','why','why_wide','faq','contact','logo','favicon'],true)&&!DB::query('SELECT id FROM manor_units WHERE id=?',[$section]))throw new \DomainException('Choose a website section or venue.');
+            if(in_array($section,['logo','favicon'],true)&&!str_starts_with($asset['mime'],'image/'))throw new \DomainException('Branding requires an image.');
+            $draft=Content::draft()['data'];$url='/manor/media/'.$asset['storage_name'];
+            foreach($draft['media'] as $entry)if(($entry['url']??'')===$url&&($entry['section']??'')===$section)return;
+            $draft['media'][]=['url'=>$url,'alt'=>$asset['alt'],'section'=>$section,'kind'=>str_starts_with($asset['mime'],'video/')?'video':'image'];
+            if(in_array($section,['logo','favicon'],true))$draft[$section.'_url']=$url;
+            Content::saveDraft($draft);
+        });
+    }
+    private function replaceMedia(Request $r): void
+    {
+        Inventory::run(function()use($r){
+            $draft=Content::draft()['data'];$index=$r->int('index',-1);$entry=$draft['media'][$index]??null;
+            if(!$entry||!hash_equals($entry['url'],$r->string('expected_url')))throw new \DomainException('Media placement changed. Reload this page and try again.');
+            $section=$entry['section']??'';$file=$r->file('media')??[];
+            if(in_array($section,['logo','favicon'],true))Files::validate($file,['image/jpeg','image/png','image/webp'],25*1048576);
+            $url=Files::media($file);$draft['media'][$index]=['url'=>$url,'alt'=>$r->string('alt'),'section'=>$section,'kind'=>str_ends_with($url,'.mp4')?'video':'image'];
+            if(in_array($section,['logo','favicon'],true))$draft[$section.'_url']=$url;
+            Content::saveDraft($draft);Service::audit(null,'media_placement_replaced',['section'=>$section,'old_url'=>$entry['url'],'new_url'=>$url]);
+        });
     }
     private function orderMedia(Request $r): void
     {

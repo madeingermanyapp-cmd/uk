@@ -11,8 +11,10 @@ final class Content
     }
     public static function draft(): array
     {
-        $row=DB::query("SELECT * FROM manor_content_versions WHERE status='draft' ORDER BY created_at DESC,id DESC LIMIT 1")[0]??null;
-        return ['id'=>$row['id']??null,'data'=>$row?array_replace(Settings::get(),json_decode($row['data'],true)):Settings::get()];
+        $published=DB::query("SELECT id,data FROM manor_content_versions WHERE status='published' ORDER BY approved_at DESC,id DESC LIMIT 1")[0]??null;
+        $row=DB::query("SELECT * FROM manor_content_versions WHERE status='draft' AND id>? ORDER BY created_at DESC,id DESC LIMIT 1",[$published['id']??''])[0]??null;
+        $base=array_replace(Settings::get(),$published?json_decode($published['data'],true):[]);
+        return ['id'=>$row['id']??null,'data'=>$row?array_replace($base,json_decode($row['data'],true)):$base];
     }
     public static function publicSettings(bool $preview=false): array
     {
@@ -62,6 +64,7 @@ final class Content
                 }elseif(empty($media['rights_approved'])||empty($media['rights']))throw new \DomainException('External media requires recorded publication rights.');
             }
             DB::execute("UPDATE manor_content_versions SET status='archived' WHERE status='published'");
+            DB::execute("UPDATE manor_content_versions SET status='archived' WHERE status='draft' AND id<?",[$id]);
             DB::execute("UPDATE manor_content_versions SET status='published',approved_at=UTC_TIMESTAMP(),actor=? WHERE id=?",[Auth::user()['id']??'system',$id]);
             $s=Settings::get();$s['content_confirmed']=true;Settings::save($s);Service::audit(null,'content_published',['version'=>$id]);
         });

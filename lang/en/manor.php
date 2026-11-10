@@ -1,5 +1,18 @@
 <?php
 return [
+    'media_slot_hero'=>'Hero / main photograph',
+    'media_slot_heritage'=>'Heritage photographs',
+    'media_slot_why'=>'Why choose Wonham - property photograph',
+    'media_slot_why_wide'=>'Why choose Wonham - wide photograph',
+    'media_slot_faq'=>'FAQ photograph',
+    'media_slot_contact'=>'Contact photograph',
+    'media_slot_logo'=>'Website logo',
+    'media_slot_favicon'=>'Browser icon',
+    'media_edit_help'=>'Choose a section or venue, upload or reuse an image, then preview your draft. Approve new assets in the library and publish from Website content. Draft replacements keep the current published image visible.',
+    'replace_image'=>'Choose replacement image or video',
+    'replace_draft_media'=>'Replace in draft',
+    'media_library'=>'Media library',
+    'use_media_here'=>'Use in this section / venue',
     'begin_your_occasion'=>"BEGIN YOUR OCCASION",
     'make_an_enquiry'=>"Make an enquiry.",
     'enquiries_are_currently_closed'=>"Enquiries are currently closed.",
