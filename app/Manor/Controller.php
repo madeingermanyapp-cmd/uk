@@ -66,7 +66,7 @@ final class Controller
     {
         try{$this->admin();}catch(\DomainException){return Response::html('Forbidden',403);}
         if($r->string('id')) return $this->detail(Service::request($r->string('id')),true);
-        return $this->render('admin',['records'=>DB::query('SELECT r.*,u.name AS unit_name FROM manor_requests r JOIN manor_units u ON u.id=r.unit_id ORDER BY r.created_at DESC LIMIT 200'),'units'=>DB::query('SELECT * FROM manor_units ORDER BY name'),'blocks'=>DB::query('SELECT DISTINCT request_id,starts_at,ends_at FROM manor_allocations WHERE request_id NOT IN(SELECT id FROM manor_requests)'), 'messages'=>DB::query('SELECT * FROM manor_messages ORDER BY created_at DESC LIMIT 100')]);
+        return $this->render('admin',['records'=>DB::query('SELECT r.*,u.name AS unit_name FROM manor_requests r JOIN manor_units u ON u.id=r.unit_id ORDER BY r.created_at DESC LIMIT 200'),'units'=>DB::query('SELECT * FROM manor_units ORDER BY name'),'blocks'=>DB::query("SELECT a.request_id,a.starts_at,a.ends_at,GROUP_CONCAT(DISTINCT r.name ORDER BY r.name SEPARATOR ', ') AS resource_names FROM manor_allocations a JOIN resources r ON r.id=a.resource_id WHERE a.request_id NOT IN(SELECT id FROM manor_requests) GROUP BY a.request_id,a.starts_at,a.ends_at"), 'messages'=>DB::query('SELECT * FROM manor_messages ORDER BY created_at DESC LIMIT 100')]);
     }
     public function adminAction(Request $r): Response
     {
@@ -137,7 +137,11 @@ final class Controller
     private function block(Request $r): void
     {
         Inventory::run(function($tenant)use($r){
-            [$start,$end,$guests]=Service::dates($r->string('unit_id'),$r->all());
+            // Maintenance closures are physical intervals, independent of guest
+            // opening hours, stay limits, enabled rental modes or attendance.
+            $start=Rules::instant($r->string('start'))->format('Y-m-d H:i:s');
+            $end=Rules::instant($r->string('end'))->format('Y-m-d H:i:s');
+            if($end<=$start)throw new \DomainException('Invalid booking duration or date.');
             $id=Ulid::generate();
             // Admin blocks consume exactly the same resources as reservations; no fabricated customers.
             Inventory::reserve(['id'=>$id,'unit_id'=>$r->string('unit_id'),'starts_at'=>$start,'ends_at'=>$end],null,false,$tenant);

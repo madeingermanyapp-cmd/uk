@@ -11,7 +11,7 @@ final class SettingsController
         if(!$this->allowed())return Response::html('Forbidden',403);
         Language::apply();$section=$r->getAttribute('section')?:'general';if(!in_array($section,self::SECTIONS,true))return Response::html('Not found',404);
         if($section==='setup'&&Settings::get()['setup_complete'])return Response::redirect('/admin/manor/settings/readiness');
-        return View::response('manor.settings',['section'=>$section,'settings'=>Settings::get(),'draft'=>Content::draft(),'smtp'=>MailSettings::get(),'checks'=>$section==='readiness'?Readiness::checks($r):[],'pages'=>DB::query('SELECT * FROM manor_pages ORDER BY slug,locale'),'media'=>DB::query('SELECT * FROM manor_media WHERE deleted_at IS NULL ORDER BY created_at DESC'),'units'=>DB::query('SELECT * FROM manor_units ORDER BY name'),'services'=>DB::query('SELECT * FROM manor_services ORDER BY name'),'deliveries'=>DB::query("SELECT id,status,attempts,last_error_code,created_at,delivered_at FROM delivery_outbox WHERE topic='manor.notification' ORDER BY created_at DESC LIMIT 100"),'mail_logs'=>DB::query("SELECT id,type,status,error,sent_at FROM email_log WHERE type IN('manor_notification','manor_test') ORDER BY sent_at DESC LIMIT 100"),'test_result'=>$_SESSION['manor_test_result']??null])->header('Cache-Control','no-store')->header('Referrer-Policy','no-referrer');
+        return View::response('manor.settings',['section'=>$section,'settings'=>Settings::get(),'draft'=>Content::draft(),'smtp'=>MailSettings::get(),'checks'=>$section==='readiness'?Readiness::checks($r):[],'pages'=>DB::query('SELECT p.*,d.data AS draft_data,d.approved_hash FROM manor_pages p LEFT JOIN manor_page_drafts d ON d.page_id=p.id ORDER BY p.slug,p.locale'),'media'=>DB::query('SELECT * FROM manor_media WHERE deleted_at IS NULL ORDER BY created_at DESC'),'units'=>DB::query('SELECT * FROM manor_units ORDER BY name'),'services'=>DB::query('SELECT * FROM manor_services ORDER BY name'),'deliveries'=>DB::query("SELECT id,status,attempts,last_error_code,created_at,delivered_at FROM delivery_outbox WHERE topic='manor.notification' ORDER BY created_at DESC LIMIT 100"),'mail_logs'=>DB::query("SELECT id,type,status,error,sent_at FROM email_log WHERE type IN('manor_notification','manor_test') ORDER BY sent_at DESC LIMIT 100"),'test_result'=>$_SESSION['manor_test_result']??null])->header('Cache-Control','no-store')->header('Referrer-Policy','no-referrer');
     }
     public function save(Request $r): Response
     {
@@ -29,7 +29,7 @@ final class SettingsController
                         DB::execute('UPDATE auth_emails SET email=? WHERE user_id=? AND user_type=?',[$email,$user['id'],'operator']);
                     });
                     $_SESSION['auth_email']=$email;$_SESSION['auth_name']=$r->string('admin_name');session_regenerate_id(true);break;
-                case 'general':
+                case 'general':Inventory::run(function()use($r,&$s){$s=Settings::get();
                     foreach(['website_name','public_url','email','phone','address','currency'] as $key)$s[$key]=$r->string($key);
                     $url=parse_url($s['public_url']);if(!is_array($url)||empty($url['host'])||!in_array($url['scheme']??'',['http','https'],true)||isset($url['user'])||!empty($url['query'])||!empty($url['fragment'])||!in_array($url['path']??'',['','/'],true))throw new \DomainException('Enter an HTTP or HTTPS public origin without a path.');
                     if($s['currency']!==Settings::get()['currency']&&DB::query('SELECT id FROM manor_quotes LIMIT 1'))throw new \DomainException('Currency cannot change after quotations exist.');
@@ -37,7 +37,7 @@ final class SettingsController
                     $s['languages_configured']=true;$s['languages']=array_values(array_unique(array_merge(['en'],array_intersect(['ar'],$r->all()['languages']??[]))));
                     $s['public_url']=rtrim($s['public_url'],'/');$s['social_links']=[];
                     foreach(['instagram','facebook','youtube','linkedin'] as $social)if($r->string('social_'.$social)){$s['social_links'][$social]=$r->string('social_'.$social);}
-                    Settings::save($s);DB::execute("UPDATE tenants SET currency=? WHERE slug='wonham-manor'",[$s['currency']]);break;
+                    Settings::save($s);DB::execute("UPDATE tenants SET currency=? WHERE slug='wonham-manor'",[$s['currency']]);DB::upsertSetting('app_name',$s['website_name']);});break;
                 case 'features':foreach(array_keys($s['flags']) as $flag)$s['flags'][$flag]=$r->bool('flag_'.$flag);Settings::save($s);break;
                 case 'payments':$s['bank_details']=$r->string('bank_details');$s['payment_methods']=array_values(array_intersect(['bank_transfer','external_link'],$r->all()['payment_methods']??[]));$s['payment_verification_required']=true;$s['deposit_default']=$r->string('deposit_default','0.00');Rules::pence($s['deposit_default']);Settings::save($s);break;
                 case 'email':MailSettings::save($r->all());break;
@@ -111,7 +111,7 @@ final class SettingsController
         $user=Auth::user();$old=DB::query('SELECT email FROM operators WHERE id=?',[$user['id']])[0]['email'];
         DB::execute('UPDATE operators SET email=?,name=? WHERE id=?',[$email,$r->string('admin_name'),$user['id']]);DB::execute('UPDATE auth_emails SET email=? WHERE email=? AND user_id=?',[$email,$old,$user['id']]);
         if($password!=='')DB::execute('UPDATE operators SET password_hash=? WHERE id=?',[password_hash($password,PASSWORD_DEFAULT),$user['id']]);
-        $s['website_name']=$r->string('website_name');$s['address']=$r->string('address');$s['public_url']=$r->string('public_url');foreach(['entire_property','partial_venue','hotel_mode'] as $flag)$s['flags'][$flag]=$r->bool('flag_'.$flag);$s['bank_details']=$r->string('bank_details');$s['setup_complete']=true;Settings::save($s);
+        $s['website_name']=$r->string('website_name');$s['address']=$r->string('address');$s['public_url']=$r->string('public_url');foreach(['entire_property','partial_venue','hotel_mode'] as $flag)$s['flags'][$flag]=$r->bool('flag_'.$flag);$s['bank_details']=$r->string('bank_details');$s['setup_complete']=true;Settings::save($s);DB::upsertSetting('app_name',$s['website_name']);
         $_SESSION['auth_email']=$email;$_SESSION['auth_name']=$r->string('admin_name');session_regenerate_id(true);
         });
     }

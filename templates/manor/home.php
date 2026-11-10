@@ -1,1 +1,1 @@
-<?php include __DIR__.'/start.php';foreach(['hero','introduction','heritage','why','venues','faq','contact','information','newsletter'] as $section) if($settings['sections'][$section]??true) include __DIR__.'/sections/'.$section.'.php'; include __DIR__.'/end.php';?>
+<?php include __DIR__.'/start.php';foreach(['hero','introduction','heritage','why','venues','faq','contact','information'] as $section) if($settings['sections'][$section]??true) include __DIR__.'/sections/'.$section.'.php'; include __DIR__.'/end.php';?>

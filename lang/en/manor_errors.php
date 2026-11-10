@@ -142,4 +142,5 @@ return [
 '6377568df3dc20b1'=>"Venue is unavailable.",
 '4f9c83385484b106'=>"Verified net payments do not cover the accepted quotation.",
 '71dcad021fd9ad89'=>"Wonham is not initialized.",
+'7c9ef77532db3d39'=>"Media asset not found.",
 ];

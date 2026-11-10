@@ -68,10 +68,14 @@ final class Content
     }
     public static function mediaReview(string $id,string $alt,string $rights,bool $approve): void
     {
+        Inventory::run(function()use($id,$alt,$rights,$approve){
+        $asset=DB::query('SELECT status FROM manor_media WHERE id=? AND deleted_at IS NULL FOR UPDATE',[$id])[0]??null;
+        if(!$asset)throw new \DomainException('Media asset not found.');
         if($approve&&trim($rights)==='')throw new \DomainException('Record the source and publication rights for this asset.');
-        DB::execute('UPDATE manor_media SET alt=?,rights=?,status=?,approved_by=?,approved_at=? WHERE id=? AND deleted_at IS NULL',[mb_substr($alt,0,2000),mb_substr($rights,0,5000),$approve?'approved':'draft',$approve?(Auth::user()['id']??'system'):null,$approve?gmdate('Y-m-d H:i:s'):null,$id]);
+        DB::execute('UPDATE manor_media SET alt=?,rights=?,status=?,approved_by=?,approved_at=? WHERE id=? AND deleted_at IS NULL',[mb_substr($alt,0,2000),mb_substr($rights,0,5000),$approve?($asset['status']==='published'?'published':'approved'):'draft',$approve?(Auth::user()['id']??'system'):null,$approve?gmdate('Y-m-d H:i:s'):null,$id]);
         $draft=self::draft()['data'];foreach($draft['media'] as &$entry)if(str_starts_with($entry['url']??'','/manor/media/'.$id.'.'))$entry['alt']=mb_substr($alt,0,2000);unset($entry);self::saveDraft($draft);
         Service::audit(null,'media_rights_reviewed',['media_id'=>$id,'approved'=>$approve]);
+        });
     }
     public static function removeMedia(string $id): void
     {
@@ -80,12 +84,38 @@ final class Content
         foreach(['logo_url','favicon_url'] as $key)if(str_starts_with($draft[$key]??'','/manor/media/'.$id.'.'))$draft[$key]='';self::saveDraft($draft);
         Service::audit(null,'media_removed',['media_id'=>$id]);
     }
+    public static function pageHash(array $data): string
+    {
+        ksort($data);return hash('sha256',json_encode($data,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE));
+    }
+    public static function pageDraft(string $id): ?array
+    {
+        $row=DB::query('SELECT p.*,d.data AS draft_data,d.approved_hash FROM manor_pages p LEFT JOIN manor_page_drafts d ON d.page_id=p.id WHERE p.id=?',[$id])[0]??null;
+        if(!$row)return null;
+        return !empty($row['draft_data'])?array_replace($row,json_decode($row['draft_data'],true)):$row;
+    }
     public static function page(array $input): void
     {
-        $id=$input['page_id']??'';if(!$id)$id=Ulid::generate();$slug=trim($input['slug']??'');$locale=$input['locale']??'en';
-        if(!preg_match('/^[a-z0-9][a-z0-9-]{0,79}$/D',$slug)||!in_array($locale,['en','ar'],true)||!trim($input['title']??''))throw new \DomainException('Enter a page title, language and valid URL slug.');
-        if(!empty($input['enabled'])&&empty($input['approved']))throw new \DomainException('Approve page content before publication.');
-        DB::execute('INSERT INTO manor_pages(id,slug,locale,title,body,seo_description,enabled) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE title=VALUES(title),body=VALUES(body),seo_description=VALUES(seo_description),enabled=VALUES(enabled)',[$id,$slug,$locale,mb_substr($input['title'],0,255),mb_substr($input['body']??'',0,100000),mb_substr($input['seo_description']??'',0,1000),!empty($input['enabled'])?1:0]);
-        Service::audit(null,'page_saved',['page_id'=>$id,'published'=>!empty($input['enabled'])]);
+        Inventory::run(function()use($input){
+            $id=trim($input['page_id']??'');$row=$id?DB::query('SELECT * FROM manor_pages WHERE id=? FOR UPDATE',[$id])[0]??null:null;
+            if($id&&!$row)throw new \DomainException('Page not found.');
+            $action=$input['page_action']??(!empty($input['enabled'])?'publish':'draft');
+            if(!in_array($action,['draft','publish','unpublish'],true))throw new \DomainException('Unknown action.');
+            if($action==='unpublish'){
+                if(!$row)throw new \DomainException('Page not found.');
+                DB::execute('UPDATE manor_pages SET enabled=0 WHERE id=?',[$id]);Service::audit(null,'page_unpublished',['page_id'=>$id]);return;
+            }
+            $data=['slug'=>trim($input['slug']??''),'locale'=>$input['locale']??'en','title'=>mb_substr(trim($input['title']??''),0,255),'body'=>mb_substr($input['body']??'',0,100000),'seo_description'=>mb_substr($input['seo_description']??'',0,1000)];
+            if(!preg_match('/^[a-z0-9][a-z0-9-]{0,79}$/D',$data['slug'])||!in_array($data['locale'],['en','ar'],true)||!$data['title'])throw new \DomainException('Enter a page title, language and valid URL slug.');
+            if(DB::query('SELECT id FROM manor_pages WHERE slug=? AND locale=? AND id<>? LIMIT 1',[$data['slug'],$data['locale'],$id]))throw new \DomainException('A page already uses this URL and language.');
+            if($action==='publish'&&empty($input['approved']))throw new \DomainException('Approve page content before publication.');
+            if(!$row){$id=Ulid::generate();DB::execute('INSERT INTO manor_pages(id,slug,locale,title,body,seo_description,enabled) VALUES(?,?,?,?,?,?,0)',[$id,$data['slug'],$data['locale'],$data['title'],'','']);}
+            DB::execute('INSERT INTO manor_page_drafts(page_id,data) VALUES(?,?) ON DUPLICATE KEY UPDATE data=VALUES(data)',[$id,json_encode($data,JSON_THROW_ON_ERROR)]);
+            if($action==='publish'){
+                DB::execute('UPDATE manor_pages SET slug=?,locale=?,title=?,body=?,seo_description=?,enabled=1 WHERE id=?',[$data['slug'],$data['locale'],$data['title'],$data['body'],$data['seo_description'],$id]);
+                $hash=self::pageHash($data);DB::execute('UPDATE manor_page_drafts SET approved_hash=?,approved_at=UTC_TIMESTAMP(),approved_by=? WHERE page_id=?',[$hash,Auth::user()['id']??'system',$id]);
+                Service::audit(null,'page_published',['page_id'=>$id,'content_hash'=>$hash,'approved'=>true]);
+            }else Service::audit(null,'page_draft_saved',['page_id'=>$id]);
+        });
     }
 }

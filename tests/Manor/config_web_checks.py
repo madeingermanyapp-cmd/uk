@@ -74,6 +74,8 @@ s,html,_,_,_=admin.req('/admin/manor/settings/content');version=re.search(r'name
 s,_,_,_,_=admin.req('/admin/manor/settings/content',{'_csrf_token':admin.token(html),'action':'publish','version_id':version});check(s==422,'content publication requires explicit approval')
 s,html,_,_,_=admin.req('/admin/manor/settings/content',{'_csrf_token':csrf,'action':'publish','version_id':version,'approved':'1'});check(s==200,'approved content draft publishes')
 s,_,_,_,_=public.req('/manor/media/'+asset+'.png');check(s==200,'published approved media becomes accessible')
+s,html,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':csrf,'action':'media_review','media_id':asset,'alt':'Updated draft alt','rights':'Synthetic pixel created by automated test','approved':'1'});check(s==200,'approved published media can receive draft metadata edits')
+s,_,_,_,_=public.req('/manor/media/'+asset+'.png');check(s==200,'draft metadata edits do not take approved published media offline')
 s,html,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':csrf,'action':'media_remove','media_id':asset});check(s==200,'media removal succeeds without deleting history')
 s,_,_,_,_=public.req('/manor/media/'+asset+'.png');check(s==404,'removed media immediately stops public delivery')
 s,html,_,_,_=admin.req('/admin/manor/settings/email');check('local-test-secret-not-a-production-credential' not in html,'saved SMTP password is never rendered')
@@ -81,6 +83,28 @@ s,html,_,_,_=public.req('/manor/recover?lang=en');check(s==200 and 'Recover secu
 general.pop('languages[]',None)
 s,html,_,_,_=admin.req('/admin/manor/settings/general',general);check(s==200,'administrator disables Arabic')
 s,html,_,_,_=public.req('/?lang=ar');check('dir=\"ltr\"' in html and 'class=\"language-switch\"' not in html,'disabled language disappears and cannot be selected')
+# Internal pages keep their approved live version while a new draft is edited.
+s,html,_,_,_=admin.req('/admin/manor/settings/pages?lang=en');page_csrf=admin.token(html)
+slug='qa-page-'+uuid.uuid4().hex[:10]
+page={'_csrf_token':page_csrf,'action':'page','page_action':'draft','slug':slug,'locale':'en','title':'Synthetic internal page','body':'Synthetic unpublished body','seo_description':'QA'}
+s,html,_,_,_=admin.req('/admin/manor/settings/pages',page);check(s==200,'internal page draft saves')
+forms=re.findall(r'<form[^>]*>.*?</form>',html,re.S)
+form=next(f for f in forms if 'value="'+slug+'"' in f)
+page['page_id']=re.search(r'name="page_id" value="([A-Z0-9]{26})"',form).group(1)
+s,_,_,_,_=public.req('/page/'+slug);check(s==404,'unpublished internal page is private')
+s,preview,_,_,_=admin.req('/admin/manor/page-preview/'+page['page_id']);check(s==200 and page['body'] in preview,'operator previews the internal page draft')
+page['page_action']='publish'
+s,_,_,_,_=admin.req('/admin/manor/settings/pages',page);check(s==422,'internal page publication requires approval')
+page['approved']='1'
+s,_,_,_,_=admin.req('/admin/manor/settings/pages',page);check(s==200,'approved internal page publishes')
+s,live,_,_,_=public.req('/page/'+slug);check(s==200 and page['body'] in live,'published internal page renders')
+old=page['body'];page['body']='Synthetic revised draft body';page['page_action']='draft';page.pop('approved')
+s,_,_,_,_=admin.req('/admin/manor/settings/pages',page);check(s==200,'published page accepts a separate draft')
+s,live,_,_,_=public.req('/page/'+slug);check(s==200 and old in live and page['body'] not in live,'draft edit preserves the approved live page')
+s,preview,_,_,_=admin.req('/admin/manor/page-preview/'+page['page_id']);check(s==200 and page['body'] in preview,'preview shows the revised unpublished page')
+page['page_action']='unpublish'
+s,_,_,_,_=admin.req('/admin/manor/settings/pages',page);check(s==200,'internal page can be unpublished')
+s,_,_,_,_=public.req('/page/'+slug);check(s==404,'unpublished page stops public delivery')
 s,html,_,_,_=admin.req('/admin/manor/settings/account?lang=en')
 s,_,_,_,_=admin.req('/admin/manor/settings/account',{'_csrf_token':admin.token(html),'action':'account','admin_name':'Synthetic QA','admin_email':config['ADMIN_EMAIL'],'current_password':'incorrect-synthetic-password','admin_password':''});check(s==422,'account changes require the current password')
 s,html,_,_,_=admin.req('/admin/manor/settings/setup');f=Fields();f.feed(html)

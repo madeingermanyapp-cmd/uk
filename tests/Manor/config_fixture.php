@@ -6,7 +6,7 @@ if(($_ENV['APP_ENV']??'')!=='local')throw new RuntimeException('Configuration fi
 if(($argv[1]??'')==='identity'){echo $_ENV['APP_URL']??'';exit;}
 $dir=dirname(__DIR__,2).'/.local';if(!is_dir($dir))mkdir($dir,0700,true);
 $file=$dir.'/configuration-check-snapshot.json';
-$tables=['manor_config','manor_content_versions','manor_media','manor_pages'];
+$tables=['manor_config','manor_content_versions','manor_media','manor_pages','manor_page_drafts'];
 if(($argv[1]??'')==='save'){
  if(is_file($file))throw new RuntimeException('A configuration verification snapshot already exists; restore it before another run.');
  $data=[];foreach($tables as $table)$data[$table]=DB::query('SELECT * FROM '.$table);

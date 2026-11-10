@@ -7,7 +7,7 @@ function csrf(): string {return '<input type="hidden" name="_csrf_token" value="
 function field($name,$label,$value='',$type='text',$required=true): string {return '<label>'.me($label).'<input type="'.me($type).'" name="'.me($name).'" value="'.me($value).'" '.($required?'required':'').'></label>';}
 function media($settings,$section,$gallery=false): string {
  $items=array_values(array_filter($settings['media'],fn($m)=>($m['section']??'')===$section));
- if(!$items){if(!empty($settings['preview']))$items=[['url'=>'/admin/manor/reference-media','alt'=>'Draft reference photograph — publication rights not approved','kind'=>'image']];else return '<div class="media-placeholder" role="img" aria-label="'.me(__('manor.draft_media_placeholder')).'"><span>'.me($settings['website_name']).'</span><small>'.me(__('manor.draft_media_placeholder')).'</small></div>';}
+ if(!$items){if(!empty($settings['preview'])&&is_file(dirname(__DIR__,2).'/.local/design-reference/property.jpg'))$items=[['url'=>'/admin/manor/reference-media','alt'=>'Draft reference photograph — publication rights not approved','kind'=>'image']];else return '<div class="media-placeholder" role="img" aria-label="'.me(__('manor.draft_media_placeholder')).'"><span>'.me($settings['website_name']).'</span><small>'.me(__('manor.draft_media_placeholder')).'</small></div>';}
  $html='';foreach($gallery?$items:array_slice($items,0,1) as $m){
   if(($m['kind']??'image')==='video')$html.='<video controls preload="metadata" src="'.me($m['url']).'"></video>';
   else $html.='<img '.(str_starts_with($m['url'],'/manor/media/')?'srcset="'.me($m['url']).'?width=720 720w, '.me($m['url']).' 2400w" sizes="(max-width: 720px) 100vw, 60vw" ':'').'src="'.me($m['url']).'" alt="'.me($m['alt']??'').'" loading="lazy">';

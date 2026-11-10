@@ -27,7 +27,7 @@ if(!DB::query('SELECT id FROM manor_invitation_templates LIMIT 1')){
  }
 }
 DB::upsertSetting('installed_at',gmdate('c'));
-DB::upsertSetting('app_name','Wonham Manor House');
+DB::upsertSetting('app_name',\App\Manor\Settings::get()['website_name']);
 if($local&&!DB::query("SELECT name FROM manor_secrets WHERE name='smtp'"))DB::upsertSetting('mail_transport','log');
 foreach(['private/manor','media/manor','keys','sessions'] as $path){$dir=dirname(__DIR__).'/storage/'.$path;if(!is_dir($dir))mkdir($dir,0700,true);}
 echo "Wonham initialization complete. Existing records preserved.\n";

@@ -106,6 +106,7 @@ return function (Router $router): void {
             $router->get('/manor/check-in/{token}', \App\Manor\GuestController::class, 'scan');
             $router->post('/manor/check-in/{token}', \App\Manor\GuestController::class, 'scan');
             $router->get('/admin/manor/preview', \App\Manor\PublicController::class, 'preview');
+            $router->get('/admin/manor/page-preview/{id}', \App\Manor\PublicController::class, 'pagePreview');
             $router->get('/admin/manor/reference-media', \App\Manor\PublicController::class, 'reference');
             $router->get('/admin/manor/settings/{section}', \App\Manor\SettingsController::class, 'show');
             $router->post('/admin/manor/settings/{section}', \App\Manor\SettingsController::class, 'save');

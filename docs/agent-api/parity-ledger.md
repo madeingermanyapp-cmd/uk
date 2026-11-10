@@ -192,7 +192,7 @@ Generated from reviewed human-action decisions and the live operation registry b
 
 ## Human actions
 
-Product actions: 207 (139 operation, 2 presentation, 66 trusted browser). Protocol routes for legacy v1, OAuth, discovery and cron are counted separately: 12 (1 operation, 9 transport, 2 trusted browser).
+Product actions: 208 (139 operation, 2 presentation, 67 trusted browser). Protocol routes for legacy v1, OAuth, discovery and cron are counted separately: 12 (1 operation, 9 transport, 2 trusted browser).
 
 | Human action | Class | Handler | Decision | Operations | Rationale |
 | --- | --- | --- | --- | --- | --- |
@@ -415,3 +415,4 @@ Product actions: 207 (139 operation, 2 presentation, 66 trusted browser). Protoc
 | `GET /admin/manor/scanner` | product | `App\Manor\GuestController::scanner` | trusted_browser |  | Wonham venue workflows are browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim. |
 | `POST /admin/manor/scanner` | product | `App\Manor\GuestController::scanner` | trusted_browser |  | Wonham venue workflows are browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim. |
 | `GET /admin/manor/attendance.csv` | product | `App\Manor\GuestController::csv` | trusted_browser |  | Wonham venue workflows are browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim. |
+| `GET /admin/manor/page-preview/{id}` | product | `App\Manor\PublicController::pagePreview` | trusted_browser |  | Wonham venue workflows are browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim. |

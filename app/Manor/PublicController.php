@@ -12,7 +12,7 @@ final class PublicController
     public function reference(Request $r): Response
     {
         if(!Auth::isOperator())return Response::html(Language::error('Not found'),404);
-        $path=dirname(__DIR__,2).'/docs/design-reference/property.jpg';
+        $path=dirname(__DIR__,2).'/.local/design-reference/property.jpg';
         if(!is_file($path))return Response::html(Language::error('Not found'),404);
         return (new Response())->body(file_get_contents($path))->header('Content-Type','image/jpeg')->header('Cache-Control','no-store');
     }
@@ -45,6 +45,13 @@ final class PublicController
         if(!$page)return Response::html(Language::error('Not found'),404);
         $s=Content::publicSettings();$s['seo_title']=$page['title'].' · '.$s['website_name'];$s['seo_description']=$page['seo_description'];
         return View::response('manor.page',['settings'=>$s,'page'=>$page]);
+    }
+    public function pagePreview(Request $r): Response
+    {
+        if(!Auth::isOperator())return Response::html(Language::error('Forbidden'),403);
+        Language::apply();$page=Content::pageDraft($r->getAttribute('id'));if(!$page)return Response::html(Language::error('Page not found.'),404);
+        $s=Content::publicSettings();$s['preview']=true;$s['seo_title']=$page['title'];$s['seo_description']=$page['seo_description'];
+        return View::response('manor.page',['settings'=>$s,'page'=>$page])->header('Cache-Control','no-store')->header('X-Robots-Tag','noindex')->header('Referrer-Policy','no-referrer');
     }
     public function recovery(Request $r): Response
     {

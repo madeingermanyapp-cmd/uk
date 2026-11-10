@@ -21,4 +21,5 @@ CREATE TABLE manor_media (id CHAR(48), storage_name VARCHAR(100), original_name 
 CREATE TABLE manor_services (id CHAR(26), name VARCHAR(255), description TEXT, amount VARCHAR(30), refundable TINYINT, tax_bps INT, enabled TINYINT);
 CREATE TABLE manor_operations (name VARCHAR(80), data JSON, checked_at DATETIME);
 CREATE TABLE manor_request_details (request_id CHAR(26), locale VARCHAR(5), rental_mode VARCHAR(30), secret_cipher TEXT, data JSON);
+CREATE TABLE manor_page_drafts (page_id CHAR(26), data JSON, approved_hash CHAR(64), approved_at DATETIME, approved_by VARCHAR(100), updated_at DATETIME);
 SQL;
