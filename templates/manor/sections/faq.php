@@ -1,0 +1,1 @@
+<section id="faq"><p class="eyebrow">FAQ</p><h2><?=me($settings['faq_title'])?></h2><div class="faq-grid"><?=media($settings,'faq')?><div><?php foreach($settings['faqs'] as $faq):?><details><summary><?=me($faq['question'])?></summary><p><?=me($faq['answer'])?></p></details><?php endforeach?></div></div></section>

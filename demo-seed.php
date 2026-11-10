@@ -803,6 +803,9 @@ SQL);
 // Seed Data
 // ══════════════════════════════════════════════════════════════════════
 
+// Keep the fictional archive in step with the additive venue schema.
+$pdo->exec(require __DIR__ . '/app/Manor/DemoSchema.php');
+
 $today = new DateTime();
 // Settings
 $settings = [

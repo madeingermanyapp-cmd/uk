@@ -1,0 +1,1 @@
+<?php include __DIR__.'/start.php';?><section class="narrow"><h1><?=me($message)?></h1><p><a href="/"><?=me(__('manor.return_to_the_website'))?></a></p><p><?=me(__('manor.for_a_form_correction_use_your_browser_s_back_button'))?></p></section><?php include __DIR__.'/end.php';?>

@@ -126,17 +126,14 @@
       ]
     },
     "GET /": {
-      "handler": "App\\Controllers\\HomeController::index",
-      "source_hash": "80ffbc60e041c9f21a8dd7e6815d40312b3c7af15c066645a9e4885d493172dd",
-      "disposition": "presentation",
-      "operations": [
-        "public_business_get"
-      ],
-      "rationale": "The installation landing page offers booking discovery and access-request entry points; no cross-business public directory is added.",
+      "handler": "App\\Manor\\Controller::home",
+      "source_hash": "1eb059cb6d6366bdc7d3387a3d1e41651924f535502d24eee03cd23df40b8e78",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
       "tests": [
-        "tests/Integration/BookingOperationContractCoverageTest.php",
-        "tests/Integration/ConsentRecordingTest.php",
-        "tests/Integration/CustomerApplicationOperationsTest.php"
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
       ]
     },
     "POST /request-access": {
@@ -2711,6 +2708,94 @@
         "tests/Integration/AvailabilityManagementTest.php",
         "tests/Integration/CatalogOperationsTest.php",
         "tests/Integration/OperationContractCoverageTest.php"
+      ]
+    },
+    "GET /manor/enquire": {
+      "handler": "App\\Manor\\Controller::enquiry",
+      "source_hash": "d6ae65df89fbcf15dc65691dba90fe3d90c6b365af87610eaf325972cb50a020",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
+      "tests": [
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
+      ]
+    },
+    "POST /manor/enquire": {
+      "handler": "App\\Manor\\Controller::create",
+      "source_hash": "ee1e893627847b1d309c632abbdaa630e42b2cb4cc117a29619cbaedcad1b61d",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
+      "tests": [
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
+      ]
+    },
+    "GET /manor/request/{token}": {
+      "handler": "App\\Manor\\Controller::portal",
+      "source_hash": "0850d0a8b188f074195c6cd222076d8c6afda4a2540e2cc1a8b22c27aa1f85ac",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
+      "tests": [
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
+      ]
+    },
+    "POST /manor/request/{token}": {
+      "handler": "App\\Manor\\Controller::customerAction",
+      "source_hash": "ce3c3c10cdb6676570d91457a8e0f03faf464bab0ca8abd8073076dd914206c4",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
+      "tests": [
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
+      ]
+    },
+    "GET /manor/document/{id}": {
+      "handler": "App\\Manor\\Controller::download",
+      "source_hash": "1445aec70d0440a69a81b9db132e4e27a0bbf9222106c047386459d6e2ec7adf",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
+      "tests": [
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
+      ]
+    },
+    "POST /manor/message": {
+      "handler": "App\\Manor\\Controller::message",
+      "source_hash": "52fba598e1cb1a22c195ea540468d309d703478a1f97b5414ff9553f9b9b8f14",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
+      "tests": [
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
+      ]
+    },
+    "GET /admin/manor": {
+      "handler": "App\\Manor\\Controller::dashboard",
+      "source_hash": "f7e7878798155d109971cbd11e7a380ef4bbb5b76ae40759f9014e5499f2dd56",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
+      "tests": [
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
+      ]
+    },
+    "POST /admin/manor": {
+      "handler": "App\\Manor\\Controller::adminAction",
+      "source_hash": "12310424b45a652bbca89db5dfc495b632d02a9d7bd5d148ed8e2faae41af5d2",
+      "disposition": "trusted_browser",
+      "operations": [],
+      "rationale": "Wonham venue MVP is browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
+      "tests": [
+        "tests/Manor/web_checks.py",
+        "tests/Manor/integration.php"
       ]
     }
   },

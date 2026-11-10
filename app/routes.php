@@ -30,6 +30,7 @@ return function (Router $router): void {
         InstalledMiddleware::class,
         DemoMiddleware::class,
         ThrottleMiddleware::class,
+        \App\Manor\Guard::class,
         CsrfMiddleware::class,
     ], function (Router $router) {
 
@@ -90,7 +91,17 @@ return function (Router $router): void {
         $router->get('/sitemap.xml', \App\Controllers\SeoController::class, 'sitemap');
 
         // ── Root redirect ──
-        $router->get('/', \App\Controllers\HomeController::class, 'index');
+        $router->get('/', \App\Manor\Controller::class, 'home');
+        $router->get('/manor/enquire', \App\Manor\Controller::class, 'enquiry');
+        $router->post('/manor/enquire', \App\Manor\Controller::class, 'create');
+        $router->get('/manor/request/{token}', \App\Manor\Controller::class, 'portal');
+        $router->post('/manor/request/{token}', \App\Manor\Controller::class, 'customerAction');
+        $router->get('/manor/document/{id}', \App\Manor\Controller::class, 'download');
+        $router->post('/manor/message', \App\Manor\Controller::class, 'message');
+        $router->group([AuthMiddleware::class], function (Router $router) {
+            $router->get('/admin/manor', \App\Manor\Controller::class, 'dashboard');
+            $router->post('/admin/manor', \App\Manor\Controller::class, 'adminAction');
+        });
         $router->post('/request-access', \App\Controllers\HomeController::class, 'submitRequest');
 
         // ── Installation wizard ──

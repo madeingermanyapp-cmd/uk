@@ -1,0 +1,1 @@
+<section class="hero"><?=media($settings,'hero')?><div class="hero-copy"><p class="eyebrow"><?=me($settings['hero_eyebrow'])?></p><h1><?=me($settings['hero_title'])?></h1><p class="lede"><?=me($settings['hero_text'])?></p><?php if($settings['flags']['enquiries']):?><a class="button" href="/manor/enquire"><?=me($settings['cta'])?></a><?php endif?></div></section>

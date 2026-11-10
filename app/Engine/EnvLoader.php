@@ -15,6 +15,13 @@ final class EnvLoader
 {
     public static function load(string $path): void
     {
+        // Containers supply secrets through process environment, not a tracked .env file.
+        foreach (getenv() as $name => $value) {
+            if (is_string($name) && is_string($value)) {
+                $_ENV[$name] ??= $value;
+                $_SERVER[$name] ??= $value;
+            }
+        }
         if (!is_file($path) || !is_readable($path)) {
             return;
         }

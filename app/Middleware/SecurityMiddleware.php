@@ -63,7 +63,10 @@ final class SecurityMiddleware
         // Universal security headers — present on EVERY response
         $response->header('X-Content-Type-Options', 'nosniff');
         $response->header('X-XSS-Protection', '0');
-        $response->header('Referrer-Policy', 'strict-origin-when-cross-origin');
+        // Capability portals opt into no-referrer to avoid disclosing private tracking links.
+        if (!array_key_exists('Referrer-Policy', $response->getHeaders())) {
+            $response->header('Referrer-Policy', 'strict-origin-when-cross-origin');
+        }
         $response->header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
         // X-Frame-Options — skip for embed paths that need iframe embedding
@@ -89,7 +92,7 @@ final class SecurityMiddleware
                 . "img-src 'self' data:; font-src 'self'; "
                 . "connect-src 'self'; frame-ancestors 'none'"
             );
-        } else {
+        } elseif (!array_key_exists('Content-Security-Policy', $response->getHeaders())) {
             $response->header('Content-Security-Policy', self::DEFAULT_CSP);
         }
 
