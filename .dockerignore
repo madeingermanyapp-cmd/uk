@@ -1,0 +1,13 @@
+.git
+.env
+.local
+.codex
+.agents
+storage/private
+storage/logs/*
+storage/sessions
+storage/keys
+public/uploads/*
+node_modules
+*.sql
+*.sql.gz

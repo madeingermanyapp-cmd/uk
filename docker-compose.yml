@@ -1,0 +1,58 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: wonham
+      MYSQL_USER: wonham
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Run a launcher or set DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD}
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u wonham wonham -e "SELECT 1"']
+      interval: 3s
+      timeout: 3s
+      retries: 50
+    restart: unless-stopped
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "127.0.0.1:${LOCAL_PORT:-18780}:80"
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_NAME: Wonham Manor House
+      APP_DEBUG: "false"
+      APP_TIMEZONE: UTC
+      APP_LOCALE: en
+      FORCE_HTTPS: ${FORCE_HTTPS:-false}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: wonham
+      DB_USERNAME: wonham
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD}
+      MAIL_TRANSPORT: ${MAIL_TRANSPORT:-log}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - storage:/var/www/html/storage
+      - uploads:/var/www/html/public/uploads
+    healthcheck:
+      test: [CMD, php, -r, "exit(@file_get_contents('http://127.0.0.1/health')===false?1:0);"]
+      interval: 3s
+      timeout: 3s
+      retries: 50
+    restart: unless-stopped
+volumes:
+  database:
+  storage:
+  uploads:

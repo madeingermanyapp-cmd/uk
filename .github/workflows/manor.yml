@@ -1,0 +1,15 @@
+name: Verify Wonham booking core
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  venue-core:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: curl, fileinfo, gd, mbstring, openssl, pdo_mysql, sodium, zip
+          coverage: none
+      - run: ./scripts/test-manor-ci.sh
