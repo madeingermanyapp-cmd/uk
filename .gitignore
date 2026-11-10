@@ -66,3 +66,9 @@ storage/private/
 *.sql
 *.sql.gz
 /backups/
+
+!public/uploads/manor/
+public/uploads/manor/*
+!public/uploads/manor/.htaccess
+
+storage/media/

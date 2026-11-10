@@ -39,7 +39,7 @@ try{
  Service::payment($other['id'],['kind'=>'refund','amount'=>'50','reference'=>'QA-DEPOSIT-RETURN','status'=>'verified']);ok(Service::balance($other['id'])===12000,'refund reduces ledger balance');
  fails(fn()=>Service::payment($other['id'],['amount'=>'170','reference'=>'SYNTHETIC-RECEIPT','status'=>'verified']),'duplicate external payment reference rejected');
  $settings=Settings::get();$settings['flags']['enquiries']=false;Settings::save($settings);fails(fn()=>draft($units[1]['id']),'disabled enquiries enforced server-side');
- $settings['flags']['enquiries']=true;$settings['flags']['invitations']=true;fails(fn()=>Settings::save($settings),'unfinished invitation feature cannot enable');$settings['flags']['invitations']=false;Settings::save($settings);
+ $settings['flags']['enquiries']=true;$settings['flags']['invitations']=true;Settings::save($settings);ok(Settings::get()['flags']['invitations']===true,'invitation feature can be enabled');$settings['flags']['invitations']=false;Settings::save($settings);
  $required=Settings::get();$required['document_types'][0]['required']=true;Settings::save($required);$needs=draft($units[1]['id'],'2027-06-02T10:00','2027-06-02T12:00');fails(fn()=>Service::move($needs['id'],'submitted',false),'mandatory documents enforced before submission');$required['document_types'][0]['required']=false;Settings::save($required);
  $adj=draft($units[0]['id'],'2027-06-01T12:00','2027-06-01T14:00');review($adj);Service::hold($adj['id']);ok(true,'half-open adjacent interval allowed');
  // Separate processes establish independent MySQL connections: only one can reserve empty inventory.
@@ -52,5 +52,60 @@ try{
  ok((new App\Manor\Controller())->dashboard(new App\Engine\Request())->getStatusCode()===403,'business manager denied operator venue console');
  $_SESSION=[];
  $saved=Settings::get();$saved['faqs']=[];Settings::save($saved);ok(Settings::get()['faqs']===[],'admin can remove all default FAQ content');
+ // Guest links and attendance are distinct capabilities; scanning always needs an operator.
+ $features=Settings::get();$features['flags']['invitations']=true;$features['flags']['qr_attendance']=true;Settings::save($features);
+ $_ENV['APP_URL']='http://127.0.0.1:18780';
+ $template=DB::query('SELECT id FROM manor_invitation_templates LIMIT 1')[0]['id'];
+ $guestId=App\Manor\Invitations::create($other['id'],['template_id'=>$template,'guest_name'=>'Synthetic guest','event_name'=>'Synthetic QA event','host_name'=>'QA host']);
+ $guest=DB::query('SELECT * FROM manor_guests WHERE id=?',[$guestId])[0];$secrets=(new App\Agent\PayloadCipher())->decrypt($guest['token_cipher']);
+ ok($secrets['invitation']!==$secrets['check_in']&&!str_contains($guest['token_cipher'],$secrets['invitation']),'invitation and QR tokens are distinct and encrypted at rest');
+ App\Manor\Invitations::rsvp($secrets['invitation'],'accepted');ok(App\Manor\Invitations::find($secrets['invitation'])['rsvp']==='accepted','guest RSVP persists through private capability');
+ fails(fn()=>App\Manor\Invitations::checkIn($secrets['check_in']),'guest QR does not grant staff scanning rights');
+ $qr=App\Manor\Invitations::qr($guest);ok(str_starts_with($qr,"\x89PNG"),'guest QR renders a real PNG');
+ $qrPath=tempnam(sys_get_temp_dir(),'wonham-qr-');file_put_contents($qrPath,$qr);chmod($qrPath,0600);
+ try{$decoded=(new Zxing\QrReader($qrPath))->text();ok($decoded===App\Manor\Invitations::links($guest)['check_in'],'generated QR decodes to token-only check-in URL');}finally{unlink($qrPath);}
+ $_SESSION=['auth_type'=>'operator','auth_id'=>DB::query('SELECT id FROM operators LIMIT 1')[0]['id'],'_last_activity'=>time()];
+ $first=App\Manor\Invitations::checkIn($secrets['check_in']);$again=App\Manor\Invitations::checkIn($secrets['check_in']);
+ ok(!$first['duplicate']&&$again['duplicate'],'duplicate scans do not double-count attendance');
+ ok(App\Manor\Invitations::report($other['id'])['attended']===1,'attendance report matches checked-in guest');
+ App\Manor\Invitations::checkIn($secrets['check_in'],'QA correction',true);ok(App\Manor\Invitations::report($other['id'])['attended']===0,'audited manual attendance removal updates totals');
+ App\Manor\Invitations::revoke($guestId);fails(fn()=>App\Manor\Invitations::find($secrets['invitation']),'revocation invalidates invitation and RSVP capability');
+ $features['flags']['invitations']=false;Settings::save($features);fails(fn()=>App\Manor\Invitations::create($other['id'],[]),'disabled invitations are enforced server-side');
+ $_SESSION=[];
+ // Exercise admin-created independent property, hall and nightly rooms through the real mutation.
+ function unitFixture(string $id,?string $parent,string $mode,array $data):void{
+  $_POST=['unit_id'=>$id,'parent_id'=>$parent??'','name'=>'Synthetic '.$mode,'mode'=>$mode,'enabled'=>'1','data'=>json_encode($data)];
+  try{(new App\Manor\Controller())->saveUnit(new App\Engine\Request());}finally{$_POST=[];}
+ }
+ $features=Settings::get();$features['flags']['hotel_mode']=true;Settings::save($features);
+ $newProperty=Ulid::generate();$suite=Ulid::generate();$hall=Ulid::generate();
+ unitFixture($newProperty,null,'ENTIRE_PROPERTY',['duration_modes'=>['night','hour','day'],'price'=>'400.00']);
+ unitFixture($suite,$newProperty,'ACCOMMODATION_UNIT',['duration_modes'=>['night'],'price'=>'150.00','min_stay_nights'=>1,'max_stay_nights'=>30,'check_in'=>'15:00','check_out'=>'11:00','capacity'=>8]);
+ unitFixture($hall,$newProperty,'EVENT_HALL',['duration_modes'=>['hour','day'],'hourly_rate'=>'40.00','daily_rate'=>'250.00','min_minutes'=>60,'max_minutes'=>1440,'hours'=>['08:00','23:00'],'capacity'=>100]);
+ $common=['guests'=>4,'name'=>'Synthetic nightly QA','email'=>'nightly@wonham.test','consent'=>1,'details'=>'Synthetic duration tests'];
+ $stay=Service::create($common+['unit_id'=>$suite,'duration_mode'=>'night','check_in_date'=>'2027-07-01','check_out_date'=>'2027-07-03']);review($stay);Service::hold($stay['id']);
+ ok(Inventory::local(Service::request($stay['id'])['starts_at'])==='2027-07-01 15:00:00'&&Service::suggestedBase(Service::request($stay['id']))==='300.00','nightly hire uses configured check-in and two-night pricing');
+ $adjacent=Service::create($common+['unit_id'=>$suite,'duration_mode'=>'night','check_in_date'=>'2027-07-03','check_out_date'=>'2027-07-04']);review($adjacent);Service::hold($adjacent['id']);ok(true,'adjacent nightly stays allow same-day turnover');
+ $exclusive=Service::create($common+['unit_id'=>$newProperty,'duration_mode'=>'night','check_in_date'=>'2027-07-01','check_out_date'=>'2027-07-02']);review($exclusive);fails(fn()=>Service::hold($exclusive['id']),'nightly room prevents whole-property exclusive hold');
+ $day=Service::create($common+['unit_id'=>$hall,'duration_mode'=>'day','hire_date'=>'2027-07-01']);review($day);Service::hold($day['id']);ok(Service::suggestedBase(Service::request($day['id']))==='250.00','full-day hall has configured daily price and independent inventory');
+ $hour=Service::create($common+['unit_id'=>$hall,'duration_mode'=>'hour','start'=>'2027-07-01T10:00','end'=>'2027-07-01T12:00']);review($hour);fails(fn()=>Service::hold($hour['id']),'full-day hall blocks overlapping hourly hall');
+ ok(Service::suggestedBase(Service::request($hour['id']))==='80.00','hourly price uses duration');
+ Service::correspondence($stay['id'],'Synthetic customer message',false);ok(count(DB::query('SELECT id FROM manor_correspondence WHERE request_id=?',[$stay['id']]))===1,'secure correspondence persists');
+ $features['flags']['hotel_mode']=false;Settings::save($features);fails(fn()=>Service::create($common+['unit_id'=>$suite,'duration_mode'=>'night','check_in_date'=>'2027-08-01','check_out_date'=>'2027-08-02']),'disabled hotel mode rejects nightly enquiries');
+
+ $recoverRecord=Service::request($stay['id']);App\Manor\Notifications::recover($recoverRecord['customer_email'],$stay['id']);
+ $recoveryPayload=null;foreach(DB::query("SELECT payload_cipher FROM delivery_outbox WHERE topic='manor.notification' ORDER BY created_at DESC,id DESC") as $outbox){$payload=(new App\Agent\PayloadCipher())->decrypt($outbox['payload_cipher']);if(str_contains($payload['html']??'','/manor/recover/')){$recoveryPayload=$payload;break;}}
+ ok($recoveryPayload!==null,'matching customer recovery queues encrypted email');preg_match('#/manor/recover/([a-f0-9]{64})#',$recoveryPayload['html'],$recoveryMatch);
+ $newCapability=App\Manor\Notifications::exchange($recoveryMatch[1]);ok(Service::capability($newCapability)['id']===$stay['id'],'customer recovery restores correct request');
+ fails(fn()=>Service::capability($stay['token']),'recovery invalidates old request capability');fails(fn()=>App\Manor\Notifications::exchange($recoveryMatch[1]),'recovery token cannot be replayed');
+ $navigation=Settings::get();$navigation['navigation']=[['label'=>'Z first','url'=>'/#contact'],['label'=>'A second','url'=>'/#introduction']];Settings::save($navigation);ok(array_column(Settings::get()['navigation'],'label')===['Z first','A second'],'navigation order survives MySQL JSON persistence');
+ $navigation['translated_content']['ar']['navigation']=[['label'=>'Unsafe','url'=>'javascript:alert(1)']];fails(fn()=>Settings::save($navigation),'translated navigation rejects executable URL schemes');
+ $language=Settings::get();$language['translated_content']['ar']['navigation']=App\Manor\ArabicContent::defaults()['navigation'];$language['languages']=['en','ar'];$language['languages_configured']=true;Settings::save($language);
+ App\Engine\View::init(dirname(__DIR__,2).'/templates');App\Engine\Locale::init(dirname(__DIR__,2));$_GET=['lang'=>'ar'];$_SESSION=['auth_type'=>'operator','auth_id'=>DB::query('SELECT id FROM operators LIMIT 1')[0]['id'],'_last_activity'=>time()];$pdfRequest=new App\Engine\Request();$pdfRequest->setAttribute('id',$qid);$pdf=(new App\Manor\QuoteController())->pdf($pdfRequest);ok(App\Engine\Locale::getLocale()==='ar'&&__('manor.quotation')==='عرض السعر','Arabic PDF uses resolved Arabic translation keys');ok($pdf->getStatusCode()===200&&str_starts_with($pdf->getBody(),'%PDF-')&&strlen($pdf->getBody())>5000,'admin-enabled Arabic quotation produces populated authorized PDF');if($pdfDir=getenv('MANOR_TEST_PDF_DIR')){if(!is_dir($pdfDir))mkdir($pdfDir,0700,true);file_put_contents($pdfDir.'/quotation-ar.pdf',$pdf->getBody());}
+ $_GET=[];$_SESSION=[];
+ App\Manor\MailSettings::save(['host'=>'127.0.0.1','port'=>1025,'transport'=>'log','encryption'=>'none','sender_email'=>'qa@wonham.test','password'=>'synthetic-private-password']);require dirname(__DIR__,2).'/scripts/manor-init.php';
+ ok(DB::query("SELECT value FROM settings WHERE `key`='mail_transport'")[0]['value']==='manor','repeat initialization preserves Admin email configuration');
+ $smtp=App\Manor\MailSettings::get();$cipher=DB::query("SELECT secret_cipher FROM manor_secrets WHERE name='smtp'")[0]['secret_cipher'];ok(!array_key_exists('password',$smtp)&&!str_contains($cipher,'synthetic-private-password'),'SMTP password is encrypted and omitted from settings responses');
+ App\Manor\MailSettings::save(['host'=>'127.0.0.1','port'=>1025,'transport'=>'log','encryption'=>'none','sender_email'=>'qa@wonham.test','password'=>'']);ok(App\Manor\MailSettings::get()['password_saved'],'blank SMTP password retains the secret');
  echo "$count database integration assertions passed.\n";
 }finally{$root->exec('DROP DATABASE `'.$db.'`');}

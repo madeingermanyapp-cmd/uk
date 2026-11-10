@@ -1,11 +1,19 @@
-# Backup and restore
+# Consistent backup and restoration
 
-Back up the MySQL database and both persistent application volumes together. Store encrypted copies off-server with restricted access and a retention policy. Do not commit dumps, archives, private documents, SMTP secrets or payload keys.
+Run from the repository root with Docker Compose, Python 3 and the same project/env file used for deployment. Backups contain private customer documents, SMTP/outbox encryption keys and authentication material. Use a restricted destination outside Git; encrypt and store an off-server copy.
 
-For consistent backups, enter a maintenance window and stop the application while leaving MySQL running. Run `mysqldump --single-transaction --routines --triggers --no-tablespaces` against the application database using a restricted credential passed via a protected client defaults file, not a command-line password. Archive the `storage` and `uploads` volumes. Include a protected copy of production configuration and deployed commit SHA. Restart the app and verify health.
+```sh
+scripts/backup.sh wonham-production /secure/wonham.env /secure/backups/2026-11-10
+```
 
-Restore into an isolated environment first: create a fresh database and volume set, import the dump, restore storage/uploads with the web-user ownership, then configure the matching source commit. Verify authentication, quote snapshots, payment ledger totals, private document access and shared inventory before switching production. Restoring DB without documents/keys is incomplete. Record the recovery point and duration. A successful backup command is not proof that restore works.
+The helper stops app/worker writes, takes a transactional MySQL dump, copies storage/uploads, records source identity and creates/verifies a SHA-256 file manifest. It records successful completion in Admin Readiness only after the artifacts succeed and restarts services even if backup fails. Use a fresh directory each time. Hashes detect accidental corruption; they do not establish authenticity against an attacker who can replace the manifest.
 
-Local-only reset is `scripts/reset-demo.sh`, with its explicit confirmation. It is not a production recovery tool. A full production backup/restore drill remains a release gate until evidenced.
+Restore first into a separate deployment and verify before replacing live data. The explicit replacement flag authorizes replacing the selected deployment's database/files; take a fresh safety backup beforehand.
 
-A concrete Compose backup helper is provided: `./scripts/backup.sh PROJECT /secure/environment.env /absolute/private/backup-directory`. It stops app writes, takes a transactional dump, copies storage/uploads and records the source commit, then restarts the app through a trap. It refuses to overwrite an existing database dump. The destination contains sensitive data and must be encrypted and excluded from source control. Never use a publicly served directory.
+```sh
+scripts/restore.sh wonham-restore /secure/restore.env /secure/backups/2026-11-10 --replace-selected-deployment
+```
+
+The helper checks the complete artifact manifest before stopping services, imports the database, replaces storage/uploads, restores ownership and runs idempotent migrations. It leaves services stopped on failure so a partial restoration is not served. DB/schema credentials belong to the target environment; operator accounts and encrypted business settings come from the backup. Do not lose storage encryption keys. Keep the source version compatible with the snapshot's schema; new unrelated tables on an already-used target should be avoided by restoring into fresh volumes.
+
+Verify operator login, booking/request references, protected document bytes, decryption of stored settings, quotation/payment histories, public approved media and background jobs. A successful SQL import alone is insufficient. The implementation rehearsal restored a separate local Compose project and compared request references/private document bytes and authentication against the source preview. Final infrastructure backup scheduling/off-server retention remains deployment configuration, visible as pending until established.

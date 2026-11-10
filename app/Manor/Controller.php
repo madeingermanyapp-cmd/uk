@@ -6,12 +6,14 @@ final class Controller
 {
     private function render(string $template,array $data=[]): Response
     {
-        return View::response('manor.'.$template,$data+['settings'=>Settings::get()])->header('Cache-Control','no-store')->header('Referrer-Policy','no-referrer')->header('X-Robots-Tag','noindex')->header('Content-Security-Policy',self::csp());
+        Language::apply();
+        return View::response('manor.'.$template,$data+['settings'=>Content::publicSettings()])->header('Cache-Control','no-store')->header('Referrer-Policy','no-referrer')->header('X-Robots-Tag','noindex')->header('Content-Security-Policy',self::csp());
     }
     public function home(Request $r): Response
     {
         if(!DB::query("SELECT id FROM tenants WHERE slug='wonham-manor' LIMIT 1"))return (new \App\Controllers\HomeController())->index($r);
-        return View::response('manor.home',['settings'=>Settings::get(),'units'=>DB::query("SELECT * FROM manor_units WHERE enabled=1 ORDER BY CASE WHEN mode='ENTIRE_PROPERTY' THEN 1 ELSE 0 END,name DESC")])->header('Content-Security-Policy',self::csp());
+        Language::apply();
+        return View::response('manor.home',['settings'=>Content::publicSettings(),'units'=>DB::query("SELECT * FROM manor_units WHERE enabled=1 ORDER BY CASE WHEN mode='ENTIRE_PROPERTY' THEN 1 ELSE 0 END,name DESC")])->header('Content-Security-Policy',self::csp());
     }
     private static function json(string $value): array
     {
@@ -19,7 +21,7 @@ final class Controller
         if(!is_array($data))throw new \DomainException('Expected a JSON object or list.');
         return $data;
     }
-    private static function csp(): string
+    public static function csp(): string
     {
         return "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; media-src 'self' https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'";
     }
@@ -29,8 +31,8 @@ final class Controller
     }
     public function create(Request $r): Response
     {
-        try{$result=Service::create($r->all());return Response::redirect('/manor/request/'.$result['token']);}
-        catch(\DomainException $e){return $this->render('error',['message'=>$e->getMessage()],)->status(422);}
+        try{$result=Service::create(array_replace($r->all(),['_browser'=>true]));Notifications::flush();return Response::redirect('/manor/request/'.$result['token']);}
+        catch(\DomainException $e){return $this->render('error',['message'=>Language::error($e->getMessage())],)->status(422);}
     }
     public function portal(Request $r): Response
     {
@@ -39,20 +41,22 @@ final class Controller
     }
     private function detail(array $request,bool $admin,string $token=''): Response
     {
-        return $this->render('request',['record'=>$request,'admin'=>$admin,'token'=>$token,'quotes'=>DB::query('SELECT * FROM manor_quotes WHERE request_id=? ORDER BY version DESC',[$request['id']]),'documents'=>DB::query('SELECT * FROM manor_documents WHERE request_id=?',[$request['id']]),'payments'=>DB::query('SELECT * FROM manor_payments WHERE request_id=? ORDER BY created_at',[$request['id']]),'history'=>$admin?DB::query('SELECT * FROM manor_history WHERE request_id=? ORDER BY created_at',[$request['id']]):[]]);
+        return $this->render('request',['record'=>$request,'admin'=>$admin,'token'=>$token,'quotes'=>DB::query('SELECT * FROM manor_quotes WHERE request_id=? ORDER BY version DESC',[$request['id']]),'documents'=>DB::query('SELECT * FROM manor_documents WHERE request_id=?',[$request['id']]),'payments'=>DB::query('SELECT * FROM manor_payments WHERE request_id=? ORDER BY created_at',[$request['id']]),'correspondence'=>DB::query('SELECT sender,body,created_at FROM manor_correspondence WHERE request_id=? ORDER BY created_at,id',[$request['id']]),'history'=>$admin?DB::query('SELECT * FROM manor_history WHERE request_id=? ORDER BY created_at',[$request['id']]):[]]);
     }
     public function customerAction(Request $r): Response
     {
         try {
             $record=Service::capability($r->getAttribute('token')); $id=$record['id'];
             match($r->string('action')){
+                'correspondence'=>Service::correspondence($id,$r->string('body'),false),
                 'submit'=>Service::move($id,'submitted',false), 'cancel'=>Service::move($id,'cancelled',false),
                 'accept'=>Service::accept($id,$r->string('quote_id'),is_array($r->all()['selected']??null)?$r->all()['selected']:[]),
                 'upload'=>Files::upload($id,$r->string('type'),$r->file('document')??[]),
                 default=>throw new \DomainException('Unknown action.'),
             };
+            Notifications::flush();
             return Response::redirect('/manor/request/'.$r->getAttribute('token'));
-        }catch(\DomainException $e){return $this->render('error',['message'=>$e->getMessage()])->status(422);}
+        }catch(\DomainException $e){return $this->render('error',['message'=>Language::error($e->getMessage())])->status(422);}
     }
     private function admin(): void
     {
@@ -69,23 +73,25 @@ final class Controller
         try {
             $this->admin(); $id=$r->string('id');
             switch($r->string('action')) {
+                case 'correspondence':Service::correspondence($id,$r->string('body'),true);break;
                 case 'transition':Service::move($id,$r->string('status'),true);break;
                 case 'hold':Service::hold($id);break;
                 case 'reschedule':Service::reschedule($id,$r->all());break;
+                case 'quote_form':Service::quote($id,QuoteController::input($r));break;
                 case 'quote':Service::quote($id,self::json($r->string('quote')));break;
                 case 'payment':Service::payment($id,$r->all());break;
                 case 'verify':Service::verify($id,$r->string('payment_id'),$r->string('status'));break;
-                case 'settings':Settings::save(self::json($r->string('settings')));Service::audit(null,'settings_changed');break;
                 case 'unit':$this->saveUnit($r);break;
-                case 'media':$url=Files::media($r->file('media')??[]);$s=Settings::get();$s['media'][]=['url'=>$url,'alt'=>$r->string('alt'),'section'=>$r->string('section'),'kind'=>str_ends_with($url,'.mp4')?'video':'image'];Settings::save($s);Service::audit(null,'media_uploaded');break;
+                case 'media':$url=Files::media($r->file('media')??[]);$s=Content::draft()['data'];$s['media'][]=['url'=>$url,'alt'=>$r->string('alt'),'section'=>$r->string('section'),'kind'=>str_ends_with($url,'.mp4')?'video':'image'];Content::saveDraft($s);Service::audit(null,'media_uploaded');break;
                 case 'block':$this->block($r);break;
                 case 'unblock':Inventory::run(function()use($r){$block=$r->string('block_id');if(DB::query('SELECT id FROM manor_requests WHERE id=?',[$block]))throw new \DomainException('Cancel the request to release its inventory.');Inventory::release($block);Service::audit(null,'inventory_unblocked',['block_id'=>$block]);});break;
                 default:throw new \DomainException('Unknown action.');
             }
+            Notifications::flush();
             return Response::redirect('/admin/manor'.($id?'?id='.rawurlencode($id):''));
-        }catch(\DomainException|\JsonException $e){return $this->render('error',['message'=>$e->getMessage()])->status(422);}
+        }catch(\DomainException|\JsonException $e){return $this->render('error',['message'=>Language::error($e->getMessage())])->status(422);}
     }
-    private function saveUnit(Request $r): void
+    public function saveUnit(Request $r): void
     {
         Inventory::run(function($tenant)use($r){
             $id=$r->string('unit_id')?:Ulid::generate();$parent=$r->string('parent_id')?:null;$mode=$r->string('mode');
@@ -93,16 +99,39 @@ final class Controller
             if($parent && ($parent===$id || !DB::query('SELECT id FROM manor_units WHERE id=?',[$parent]))) throw new \DomainException('Invalid parent.');
             $ancestor=$parent; $seen=[$id]; while($ancestor){if(in_array($ancestor,$seen,true))throw new \DomainException('Hierarchy cycle.');$seen[]=$ancestor;$ancestor=DB::query('SELECT parent_id FROM manor_units WHERE id=?',[$ancestor])[0]['parent_id']??null;}
             $existing=DB::query('SELECT * FROM manor_units WHERE id=?',[$id])[0]??null;
-            if($existing && ($existing['parent_id']!==$parent || $existing['mode']!==$mode)) throw new \DomainException('Existing inventory topology is immutable; create a new unit to preserve reservation semantics.');
+            if($existing&&$existing['parent_id']!==$parent&&DB::query('SELECT id FROM manor_allocations WHERE expires_at IS NULL OR expires_at>UTC_TIMESTAMP() LIMIT 1'))throw new \DomainException('Resolve active allocations before moving existing inventory.');
+            if(in_array($mode,['MEETING_ROOM','EVENT_HALL','ACCOMMODATION_UNIT'],true)&&DB::query('SELECT id FROM manor_units WHERE parent_id=? LIMIT 1',[$id]))throw new \DomainException('A physical room cannot contain other rentable units.');
             $data=self::json($r->string('data','{}'));
             if(!in_array($data['pricing_mode']??'PRICE_ON_REQUEST',['SHOW_PRICE','PRICE_ON_REQUEST','HIDDEN_FROM_PUBLIC'],true)) throw new \DomainException('Invalid pricing display mode.');
-            if(isset($data['price'])) Rules::pence((string)$data['price']);
+            foreach(['price','hourly_rate','daily_rate'] as $rate)if(isset($data[$rate]))Rules::pence((string)$data[$rate]);
+            if(!empty($data['capacity'])&&((int)$data['capacity']<1||(int)$data['capacity']>10000))throw new \DomainException('Capacity must be between 1 and 10000.');
+            if((int)($data['min_minutes']??60)<1||(int)($data['max_minutes']??43200)<(int)($data['min_minutes']??60))throw new \DomainException('Invalid duration rules.');
+            foreach(['check_in','check_out'] as $key)if(isset($data[$key])&&!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D',$data[$key]))throw new \DomainException('Invalid check-in or check-out time.');
+            if(isset($data['hours']))foreach($data['hours'] as $clock)if(!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D',$clock))throw new \DomainException('Invalid opening hours.');
+            if(isset($data['duration_modes'])&&(!$data['duration_modes']||array_diff($data['duration_modes'],['hour','day','night'])))throw new \DomainException('Choose allowed duration modes.');
+            if((int)($data['min_stay_nights']??1)<1||(int)($data['max_stay_nights']??30)<(int)($data['min_stay_nights']??1))throw new \DomainException('Invalid minimum or maximum stay.');
             $resource=$existing['resource_id']??null;
-            if(!$existing && DB::query('SELECT id FROM manor_allocations WHERE expires_at IS NULL OR expires_at>UTC_TIMESTAMP() LIMIT 1')) throw new \DomainException('Resolve active reservations and blocks before extending physical inventory.');
-            if(!$existing && !in_array($mode,['ENTIRE_PROPERTY','PARTIAL_VENUE','BUILDING','FLOOR'],true)){
+            if(!$existing&&$parent&&!in_array($mode,['BUILDING','FLOOR'],true)){
+                $root=$parent;while($next=DB::query('SELECT parent_id FROM manor_units WHERE id=?',[$root])[0]['parent_id']??null)$root=$next;
+                try{$affected=Inventory::resources($root);}catch(\DomainException){$affected=[];}
+                foreach($affected as $affectedId)if(DB::query('SELECT id FROM manor_allocations WHERE resource_id=? AND (expires_at IS NULL OR expires_at>UTC_TIMESTAMP()) LIMIT 1',[$affectedId]))throw new \DomainException('Resolve active reservations in this property before extending its physical inventory.');
+            }
+            if(!$resource && !in_array($mode,['BUILDING','FLOOR'],true)){
                 $resource=Ulid::generate();DB::execute('INSERT INTO resources(id,tenant_id,name) VALUES(?,?,?)',[$resource,$tenant['id'],$r->string('name')]);
             }
-            DB::execute('INSERT INTO manor_units(id,tenant_id,parent_id,resource_id,name,mode,data,enabled) VALUES(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name=VALUES(name),data=VALUES(data),enabled=VALUES(enabled)',[$id,$tenant['id'],$parent,$resource,$r->string('name'),$mode,json_encode($data),$r->bool('enabled')?1:0]);Service::audit(null,'unit_saved',['unit_id'=>$id]);
+            DB::execute('INSERT INTO manor_units(id,tenant_id,parent_id,resource_id,name,mode,data,enabled) VALUES(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE parent_id=VALUES(parent_id),resource_id=VALUES(resource_id),mode=VALUES(mode),name=VALUES(name),data=VALUES(data),enabled=VALUES(enabled)',[$id,$tenant['id'],$parent,$resource,$r->string('name'),$mode,json_encode($data),$r->bool('enabled')?1:0]);
+            if($resource){
+                DB::execute('UPDATE resources SET name=?,description=?,capacity=?,price_per_night=?,min_stay_nights=?,max_stay_nights=? WHERE id=?',[$r->string('name'),$data['description']??'',max(1,(int)($data['capacity']??1)),$data['price']??null,(int)($data['min_stay_nights']??1),(int)($data['max_stay_nights']??30),$resource]);
+                if(isset($data['seasonal_rates'])){
+                    DB::execute('DELETE FROM seasonal_pricing WHERE resource_id=? AND tenant_id=?',[$resource,$tenant['id']]);
+                    foreach($data['seasonal_rates'] as $rate){
+                        foreach(['start','end'] as $dateKey){$date=\DateTimeImmutable::createFromFormat('!Y-m-d',$rate[$dateKey]??'');if(!$date||$date->format('Y-m-d')!==$rate[$dateKey])throw new \DomainException('Invalid seasonal rate date.');}
+                        if($rate['end']<$rate['start'])throw new \DomainException('Seasonal rate end precedes its start.');Rules::pence((string)$rate['price']);
+                        DB::execute('INSERT INTO seasonal_pricing(id,tenant_id,resource_id,start_date,end_date,price_per_night,label) VALUES(?,?,?,?,?,?,?)',[Ulid::generate(),$tenant['id'],$resource,$rate['start'],$rate['end'],$rate['price'],$rate['label']??'']);
+                    }
+                }
+            }
+            Service::audit(null,'unit_saved',['unit_id'=>$id]);
         });
     }
     private function block(Request $r): void
@@ -133,6 +162,6 @@ final class Controller
             if(!in_array($kind,['newsletter','contact'],true)||!filter_var($r->string('email'),FILTER_VALIDATE_EMAIL)||!$r->bool('consent')||$r->string('website')) throw new \DomainException('Enter a valid email and consent.');
             DB::execute('INSERT INTO manor_messages(id,kind,data) VALUES(?,?,?)',[Ulid::generate(),$kind,json_encode(['email'=>$r->string('email'),'message'=>mb_substr($r->string('message'),0,5000),'consent_at'=>gmdate('c')])]);
             return $this->render('error',['message'=>__('manor.message_received')]);
-        }catch(\DomainException $e){return $this->render('error',['message'=>$e->getMessage()])->status(422);}
+        }catch(\DomainException $e){return $this->render('error',['message'=>Language::error($e->getMessage())])->status(422);}
     }
 }

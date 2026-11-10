@@ -15,17 +15,20 @@ services:
       retries: 50
     restart: unless-stopped
   app:
+    image: ${MANOR_IMAGE:-wonham-app:local}
     build:
       context: .
       dockerfile: docker/Dockerfile
     ports:
       - "127.0.0.1:${LOCAL_PORT:-18780}:80"
-    environment:
+    environment: &app_environment
       APP_ENV: ${APP_ENV:-local}
+      APP_URL: ${APP_URL:-http://localhost:${LOCAL_PORT:-18780}}
       APP_NAME: Wonham Manor House
       APP_DEBUG: "false"
       APP_TIMEZONE: UTC
       APP_LOCALE: en
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
       FORCE_HTTPS: ${FORCE_HTTPS:-false}
       DB_HOST: db
       DB_PORT: 3306
@@ -52,6 +55,22 @@ services:
       timeout: 3s
       retries: 50
     restart: unless-stopped
+  jobs:
+    image: ${MANOR_IMAGE:-wonham-app:local}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment: *app_environment
+    user: www-data
+    command: [php, scripts/manor-worker.php]
+    depends_on:
+      app:
+        condition: service_healthy
+    volumes:
+      - storage:/var/www/html/storage
+      - uploads:/var/www/html/public/uploads
+    restart: unless-stopped
+
 volumes:
   database:
   storage:

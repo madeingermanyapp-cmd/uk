@@ -1,266 +1,96 @@
 <?php
-// Wonham interface keys. Future locales use the same keys; English is the only shipped locale.
 return [
     'begin_your_occasion'=>"BEGIN YOUR OCCASION",
-
     'make_an_enquiry'=>"Make an enquiry.",
-
-    'select_your_preferred_space_and_london_dates_this_creates_a_draft'=>"Select your preferred space and London dates. This creates a draft, where you can add documents before submitting for review.",
-
     'enquiries_are_currently_closed'=>"Enquiries are currently closed.",
-
     'space'=>"Space",
-
     'event_details'=>"Event details",
-
     'privacy_notice_booking_terms'=>"Privacy notice & booking terms",
-
     'leave_blank'=>"Leave blank",
-
     'create_draft_enquiry'=>"Create draft enquiry ↗",
-
     'start_europe_london'=>"Start · Europe/London",
-
     'end_europe_london'=>"End · Europe/London",
-
     'expected_attendance'=>"Expected attendance",
-
     'your_name'=>"Your name",
-
     'email_address'=>"Email address",
-
     'phone_number'=>"Phone number",
-
-    'wonham'=>"WONHAM",
-
-    'manor_house'=>"MANOR HOUSE",
-
     'venue_enquiries'=>"Venue enquiries",
-
     'management'=>"Management",
-
     'application_source_agpl_3_0'=>"Application source · AGPL-3.0",
-
     'powered_by_voxelbooking_original_software_notices_retained'=>"Powered by VoxelBooking. Original software notices retained.",
-
     'management_console'=>"← Management console",
-
     'workflow'=>"Workflow",
-
     'next_status'=>"Next status",
-
     'update_status'=>"Update status",
-
     'create_expiring_provisional_hold'=>"Create expiring provisional hold",
-
     'reschedule_with_conflict_validation'=>"Reschedule with conflict validation",
-
     'reschedule'=>"Reschedule",
-
     'submit_for_management_review'=>"Submit for management review",
-
     'cancel_decline_request'=>"Cancel / decline request",
-
     'documents'=>"Documents",
-
     'document_type'=>"Document type",
-
     'payment_evidence_pdf_jpeg_png_max_5_mb'=>"Payment evidence (PDF/JPEG/PNG, max 5 MB)",
-
     'upload_securely'=>"Upload securely",
-
     'payment_evidence_is_reviewed_by_management_and_does_not_verify_pa'=>"Payment evidence is reviewed by management and does not verify payment.",
-
     'quotations'=>"Quotations",
-
     'wonham_manor_house'=>"Wonham Manor House",
-
     'item'=>"Item",
-
     'qty'=>"Qty",
-
     'net'=>"Net",
-
     'tax'=>"Tax",
-
     'include_optional_service'=>"Include optional service",
-
     'shown_total_includes_all_options_your_selected_total_is_recalcula'=>"Shown total includes all options. Your selected total is recalculated on acceptance.",
-
     'accept_selected_quotation'=>"Accept selected quotation",
-
     'payment_instructions'=>"Payment instructions",
-
     'open_external_payment_provider'=>"Open external payment provider ↗",
-
-    'use_your_browser_s_print_save_as_pdf_to_retain_this_quotation'=>"Use your browser’s Print → Save as PDF to retain this quotation.",
-
-    'prepare_revise_quotation'=>"Prepare / revise quotation",
-
-    'use_gbp_decimals_tax_is_an_explicit_basis_point_rate_2000_20_mana'=>"Use GBP decimals. Tax is an explicit basis-point rate (2000 = 20%); management must determine applicable tax. Items display in listed order. A positive mandatory base charge is required.",
-
-    'quotation_builder_editable_json'=>"Quotation builder (editable JSON)",
-
-    'issue_new_quotation_version'=>"Issue new quotation version",
-
     'payment_ledger'=>"Payment ledger",
-
     'verified_net_receipts'=>"Verified net receipts:",
-
     'kind'=>"Kind",
-
     'amount'=>"Amount",
-
     'reference'=>"Reference",
-
     'status'=>"Status",
-
     'verified'=>"verified",
-
     'rejected'=>"rejected",
-
     'review_payment'=>"Review payment",
-
     'record_receipt_deposit_refund'=>"Record receipt / deposit / refund",
-
     'payment'=>"payment",
-
     'deposit'=>"deposit",
-
     'refund'=>"refund",
-
     'reported'=>"reported",
-
     'record_ledger_entry'=>"Record ledger entry",
-
     'audit_history'=>"Audit history",
-
     'new_start_london'=>"New start · London",
-
     'new_end_london'=>"New end · London",
-
     'attendance'=>"Attendance",
-
     'amount_in_gbp'=>"Amount in GBP",
-
     'bank_provider_reference'=>"Bank/provider reference",
-
     'return_to_the_website'=>"Return to the website",
-
     'for_a_form_correction_use_your_browser_s_back_button'=>"For a form correction, use your browser’s Back button.",
-
-    'management_74'=>"MANAGEMENT",
-
     'wonham_console'=>"Wonham console.",
-
-    'voxelbooking_dashboard'=>"VoxelBooking dashboard",
-
-    'system_mail_settings'=>"System & mail settings",
-
-    'view_website'=>"View website",
-
     'booking_requests'=>"Booking requests",
-
     'venue'=>"Venue",
-
-    'london_start'=>"London start",
-
-    'website_content_feature_flags_document_policies_bank_details'=>"Website content, feature flags, document policies & bank details",
-
-    'all_content_is_escaped_plain_text_change_flags_without_rebuilding'=>"All content is escaped plain text. Change flags without rebuilding. Media array ordering controls display order. Invitations and QR are disabled in this release. No real contact details have been supplied.",
-
-    'central_configuration_json'=>"Central configuration (JSON)",
-
-    'save_configuration'=>"Save configuration",
-
-    'media_manager'=>"Media manager",
-
-    'jpeg_png_webp_images_or_mp4_videos_maximum_25_mb_images_are_re_en'=>"JPEG/PNG/WebP images or MP4 videos; maximum 25 MB. Images are re-encoded. Assign a section: hero, heritage, or a unit ID. Update/reorder the media array in website settings to change placement. Removed entries are unpublished; files are retained for safe recovery.",
-
-    'upload_public_media'=>"Upload public media",
-
-    'property_inventory'=>"Property inventory",
-
-    'entire_property_and_partial_venue_nodes_consume_all_descendant_ph'=>"Entire-property and partial-venue nodes consume all descendant physical units, including disabled ones. Building/floor nodes group inventory. Existing topology cannot be moved after creation.",
-
     'rental_mode'=>"Rental mode",
-
-    'venue_settings_json'=>"Venue settings (JSON)",
-
     'enabled'=>"Enabled",
-
-    'save_unit'=>"Save unit",
-
     'block_inventory'=>"Block inventory",
-
-    'unit'=>"Unit",
-
-    'block_selected_interval'=>"Block selected interval",
-
     'active_inventory_blocks'=>"Active inventory blocks",
-
     'release_block'=>"Release block",
-
     'contact_newsletter_inbox'=>"Contact & newsletter inbox",
-
     'section_or_unit_id'=>"Section or unit ID",
-
-    'accessible_image_description'=>"Accessible image description",
-
-    'name'=>"Name",
-
-    'parent_id'=>"Parent ID",
-
     'start_london'=>"Start London",
-
     'end_london'=>"End London",
-
     'skip_to_content'=>"Skip to content",
-
-    'the_manor'=>"The manor",
-
-    'our_spaces'=>"Our spaces",
-
-    'contact'=>"Contact",
-
-    'gather_connect_celebrate'=>"GATHER · CONNECT · CELEBRATE",
-
     'start_a_conversation'=>"Start a conversation ↗",
-
-    'a_setting_for_your_next_occasion'=>"A setting for your next occasion",
-
-    '01_wonham'=>"01 / WONHAM",
-
-    'stay_in_touch'=>"Stay in touch.",
-
     'i_agree_to_receive_newsletters_and_the_privacy_notice'=>"I agree to receive newsletters and the privacy notice.",
-
     'subscribe'=>"Subscribe",
-
-    'the_wonham_experience'=>"THE WONHAM EXPERIENCE",
-
     'find_us'=>"FIND US",
-
     'your_next_occasion'=>"YOUR NEXT OCCASION",
-
     'your_message'=>"Your message",
-
     'i_agree_to_the_privacy_notice_below'=>"I agree to the privacy notice below.",
-
     'send_your_message'=>"Send your message ↗",
-
     'your_email'=>"Your email",
-
     'find_your_setting'=>"FIND YOUR SETTING",
-
     'price_on_request'=>"Price on request",
-
     'enquire_about_this_space'=>"Enquire about this space ↗",
-
-    'welcome_to_wonham'=>"WELCOME TO WONHAM",
-
-    'explore_our_spaces'=>"Explore our spaces ↗",
-
     'your_enquiry'=>"YOUR ENQUIRY",
     'private_link_notice'=>"Save this private page address to track your request. Anyone with this link can access your enquiry and documents. Keep it confidential. Your reference is",
     'hold_expires'=>"Hold expires:",
@@ -279,7 +109,347 @@ return [
     'from'=>"From",
     'our_approach'=>"OUR APPROACH",
     'main_navigation'=>"Main navigation",
-    'draft_description'=>"Draft — details require management confirmation.",
-    'venue_hire_agreed'=>"Venue hire as agreed",
     'message_received'=>"Thank you. Your message has been received.",
+    'rsvp_status'=>"RSVP status",
+    'rsvp_pending'=>"Awaiting response",
+    'rsvp_accepted'=>"Attending",
+    'rsvp_declined'=>"Not attending",
+    'rsvp_accept'=>"I will attend",
+    'rsvp_decline'=>"I cannot attend",
+    'guest_qr'=>"Your private guest QR code",
+    'present_qr'=>"Present this QR code to the event team. Only authorized staff can record attendance.",
+    'guest_check_in'=>"Guest check-in",
+    'duplicate_scan'=>"Already checked in — duplicate scan.",
+    'check_in_recorded'=>"Attendance recorded.",
+    'confirm_check_in'=>"Confirm check-in",
+    'guest_list'=>"Guest list",
+    'invitations_attendance'=>"Invitations & attendance",
+    'confirmed_booking'=>"Confirmed booking",
+    'open_guest_list'=>"Open guest list",
+    'attendance_totals'=>"Attended / invited",
+    'export_attendance'=>"Export attendance CSV",
+    'guest_name'=>"Guest name",
+    'guest_email'=>"Guest email",
+    'actions'=>"Actions",
+    'preview_invitation'=>"Preview invitation",
+    'shareable_link'=>"Private shareable link",
+    'email_invitation'=>"Email invitation",
+    'revoke_invitation'=>"Revoke invitation",
+    'manual_override_reason'=>"Reason for manual attendance change",
+    'remove_attendance'=>"Remove attendance record",
+    'apply_manual_attendance'=>"Apply manual attendance",
+    'revoked'=>"Revoked",
+    'add_guest'=>"Add a guest",
+    'event_name'=>"Event name",
+    'host_name'=>"Host name",
+    'invitation_template'=>"Invitation template",
+    'send_invitation_now'=>"Send invitation by email",
+    'create_invitation'=>"Create invitation",
+    'invitation_templates'=>"Invitation templates",
+    'new_template'=>"New template",
+    'template_name'=>"Template name",
+    'template_style'=>"Design style",
+    'heading'=>"Heading · English",
+    'message'=>"Message · English",
+    'footer'=>"Footer · English",
+    'heading_ar'=>"Heading · Arabic",
+    'message_ar'=>"Message · Arabic",
+    'footer_ar'=>"Footer · Arabic",
+    'accent_color'=>"Accent colour",
+    'background_color'=>"Background colour",
+    'save_template'=>"Save template",
+    'action_required'=>"Action required",
+    'add_external_video'=>"Save external video in draft",
+    'administrator_email'=>"Administrator email",
+    'administrator_name'=>"Administrator name",
+    'alt_text'=>"Accessible description",
+    'answer'=>"Answer",
+    'approve_content_rights'=>"I approve this content for publication and confirm the selected media publication rights are recorded.",
+    'approve_media'=>"Publication rights approved",
+    'approve_page'=>"I approve this page content for publication",
+    'bank_instructions'=>"Bank transfer details and payment instructions",
+    'base_price'=>"Base hire / nightly price",
+    'booking_notifications'=>"Booking workflow notifications",
+    'capacity_unconfirmed_blank'=>"Maximum attendance (leave blank until confirmed)",
+    'check'=>"Check",
+    'check_in_time'=>"Check in time",
+    'check_out_time'=>"Check out time",
+    'clear_password'=>"Clear saved SMTP password",
+    'closing_time'=>"Closing time",
+    'complete_setup'=>"Complete guided setup",
+    'content_consent'=>"Content consent",
+    'content_contact_text'=>"Content contact text",
+    'content_contact_title'=>"Content contact title",
+    'content_cta'=>"Content cta",
+    'content_draft_policy'=>"Save a draft, preview it, then explicitly approve and publish. Media needs a recorded source and publication rights.",
+    'content_faq_title'=>"Content faq title",
+    'content_faqs'=>"Content faqs",
+    'content_favicon_url'=>"Content favicon url",
+    'content_heritage_text'=>"Content heritage text",
+    'content_heritage_title'=>"Content heritage title",
+    'content_hero_eyebrow'=>"Content hero eyebrow",
+    'content_hero_text'=>"Content hero text",
+    'content_hero_title'=>"Content hero title",
+    'content_intro_text'=>"Content intro text",
+    'content_intro_title'=>"Content intro title",
+    'content_logo_url'=>"Content logo url",
+    'content_media'=>"Content media",
+    'content_navigation'=>"Content navigation",
+    'content_newsletter_text'=>"Content newsletter text",
+    'content_newsletter_title'=>"Content newsletter title",
+    'content_privacy'=>"Content privacy",
+    'content_sections'=>"Content sections",
+    'content_seo_description'=>"Content seo description",
+    'content_seo_title'=>"Content seo title",
+    'content_terms'=>"Content terms",
+    'content_translated_content'=>"Content translated content",
+    'content_venues_title'=>"Content venues title",
+    'content_why_items'=>"Content why items",
+    'content_why_texts'=>"Content why texts",
+    'content_why_title'=>"Content why title",
+    'currency'=>"Currency",
+    'date'=>"Date",
+    'default_deposit'=>"Default refundable deposit",
+    'description'=>"Description",
+    'description_ar'=>"Description ar",
+    'destination'=>"Internal destination",
+    'details'=>"Details",
+    'document_key'=>"Document key (lowercase letters and underscores)",
+    'document_name'=>"Document name",
+    'document_policy'=>"Document policy",
+    'draft_media_placeholder'=>"Draft media placeholder — upload and approve a property photograph in Admin.",
+    'draft_publication_notice'=>"Draft preview — content and media have not been approved for publication.",
+    'error'=>"Error",
+    'external_video'=>"Add external video",
+    'faq_entries'=>"Frequently asked questions",
+    'feature_contact'=>"Contact form",
+    'feature_documents'=>"Customer document uploads",
+    'feature_enquiries'=>"Booking enquiries",
+    'feature_entire_property'=>"Entire-property hire",
+    'feature_hotel_mode'=>"Hotel accommodation",
+    'feature_invitations'=>"Invitations and RSVP",
+    'feature_newsletter'=>"Newsletter",
+    'feature_optional_services'=>"Optional services",
+    'feature_partial_venue'=>"Partial venue hire",
+    'feature_price_on_request'=>"Price on request",
+    'feature_public_pricing'=>"Public prices",
+    'feature_qr_attendance'=>"QR guest attendance",
+    'feature_venues'=>"Public venue visibility",
+    'home'=>"Home",
+    'hotel_rules'=>"Accommodation rules",
+    'https_video_url'=>"Direct HTTPS video URL",
+    'included'=>"Included",
+    'included_optional_services'=>"Included and optional services",
+    'invitation_notifications'=>"Guest invitation notifications",
+    'language'=>"Language",
+    'link_label'=>"Link label",
+    'log_only'=>"Local log only — no delivery",
+    'london_timezone_policy'=>"All venue schedules use Europe/London, including UK daylight-saving changes.",
+    'mail_logs'=>"Email delivery logs",
+    'mandatory'=>"Mandatory",
+    'manual_verification_policy'=>"Payments always require explicit management verification. Uploading evidence never verifies a payment.",
+    'maximum_mb'=>"Maximum file size in MB",
+    'maximum_minutes'=>"Maximum duration in minutes",
+    'maximum_nights'=>"Maximum nights",
+    'media_order'=>"Draft gallery / image order",
+    'media_rights'=>"Source, licence or permission record",
+    'media_section'=>"Section, logo, favicon, or venue ID",
+    'minimum_minutes'=>"Minimum duration in minutes",
+    'minimum_nights'=>"Minimum nights",
+    'mode_ACCOMMODATION_UNIT'=>"Accommodation unit",
+    'mode_BUILDING'=>"Building",
+    'mode_ENTIRE_PROPERTY'=>"Entire property",
+    'mode_EVENT_HALL'=>"Event hall",
+    'mode_FLOOR'=>"Floor",
+    'mode_MEETING_ROOM'=>"Meeting room",
+    'mode_PARTIAL_VENUE'=>"Partial venue",
+    'move_down'=>"Move later",
+    'move_up'=>"Move earlier",
+    'navigation'=>"Website navigation",
+    'new_page'=>"Create a page",
+    'new_password_optional'=>"New password (optional; minimum 16 characters)",
+    'new_service'=>"New service",
+    'new_venue'=>"New venue",
+    'no_parent'=>"No parent — independent property",
+    'no_password_saved'=>"No SMTP password has been saved.",
+    'notification'=>"Notification",
+    'notification_template'=>"Email template — {{website_name}}, {{event}}, {{reference}}, {{status}}, {{link}}",
+    'opening_time'=>"Opening time",
+    'optional'=>"Optional",
+    'page'=>"Page",
+    'page_body'=>"Page content",
+    'page_title'=>"Page title",
+    'parent_property'=>"Parent property",
+    'pass'=>"Pass",
+    'password_saved_hidden'=>"A password is saved securely. It is never displayed.",
+    'preview_draft'=>"Preview current draft",
+    'preview_media'=>"Preview protected media",
+    'pricing_visibility'=>"Pricing visibility",
+    'publish_content'=>"Publish approved content",
+    'publish_page'=>"Published / visible",
+    'question'=>"Question",
+    'readiness_authentication'=>"Authentication",
+    'readiness_background_jobs'=>"Background jobs",
+    'readiness_backup'=>"Backup",
+    'readiness_content'=>"Content",
+    'readiness_debug'=>"Debug",
+    'readiness_domain'=>"Domain",
+    'readiness_https'=>"Https",
+    'readiness_installer'=>"Installer",
+    'readiness_live_checks'=>"These checks read current configuration, connection state, storage permissions and recorded operational results. A local development build is not a production release.",
+    'readiness_payments'=>"Payments",
+    'readiness_smtp'=>"Smtp",
+    'readiness_source'=>"Source",
+    'readiness_storage'=>"Storage",
+    'recover'=>"Recover",
+    'recover_access'=>"Recover secure access",
+    'recovery_privacy'=>"A matching enquiry receives a time-limited email link. Confirming recovery rotates the old private link.",
+    'recovery_sent'=>"If those details match an enquiry, a recovery email has been queued.",
+    'refundable_deposit'=>"Refundable deposit",
+    'remove_media'=>"Unpublish and remove media",
+    'request_reference'=>"Enquiry reference",
+    'required_documents'=>"Documents requested for this unit",
+    'restore_secure_access'=>"Confirm and restore secure access",
+    'restrict_hours'=>"Restrict hours",
+    'retry'=>"Retry",
+    'run_jobs_now'=>"Run background jobs now",
+    'save_draft'=>"Save new draft",
+    'save_page'=>"Save page",
+    'save_policies'=>"Save policies",
+    'save_rights'=>"Save rights review",
+    'save_service'=>"Save service",
+    'save_settings'=>"Save settings",
+    'save_venue'=>"Save venue",
+    'section_contact'=>"Section contact",
+    'section_faq'=>"Section faq",
+    'section_heritage'=>"Section heritage",
+    'section_hero'=>"Section hero",
+    'section_information'=>"Section information",
+    'section_introduction'=>"Section introduction",
+    'section_newsletter'=>"Section newsletter",
+    'section_venues'=>"Section venues",
+    'section_visibility'=>"Visible sections",
+    'section_why'=>"Section why",
+    'send_recovery_link'=>"Email a recovery link",
+    'send_test_email'=>"Send test email",
+    'seo_description'=>"Seo description",
+    'service_name'=>"Service name",
+    'setting_address'=>"Property address",
+    'setting_currency'=>"Setting currency",
+    'setting_email'=>"Contact email",
+    'setting_phone'=>"Contact phone",
+    'setting_public_url'=>"Canonical website URL",
+    'setting_website_name'=>"Website name",
+    'settings'=>"Settings",
+    'settings_content'=>"Website content",
+    'settings_documents'=>"Document requirements",
+    'settings_email'=>"Email & secure SMTP",
+    'settings_features'=>"Features & booking modes",
+    'settings_general'=>"General & branding",
+    'settings_media'=>"Media & publication rights",
+    'settings_notifications'=>"Notifications & delivery",
+    'settings_pages'=>"Pages & legal content",
+    'settings_payments'=>"Payment instructions",
+    'settings_readiness'=>"Deployment readiness",
+    'settings_services'=>"Services catalogue",
+    'settings_setup'=>"Guided setup",
+    'settings_venues'=>"Properties & rentable units",
+    'setup_intro'=>"Set up your administrator account, website identity, property information and initial booking modes. Email and payment configuration can be completed later.",
+    'setup_optional_later'=>"Complete email, detailed content, publication rights and payment configuration later through the settings sections. The deployment readiness page shows actual outstanding checks.",
+    'smtp_encryption'=>"Encryption",
+    'smtp_host'=>"SMTP hostname or IP",
+    'smtp_password'=>"New SMTP password (leave blank to retain)",
+    'smtp_port'=>"SMTP port",
+    'smtp_sender_email'=>"Sender email address",
+    'smtp_sender_name'=>"Sender display name",
+    'smtp_test_failed'=>"Email delivery failed. Review configuration and protected delivery logs.",
+    'smtp_test_log'=>"The message was logged locally; no email was sent.",
+    'smtp_test_success'=>"SMTP transport accepted the test message. Check the recipient inbox.",
+    'smtp_transport'=>"Email transport",
+    'smtp_username'=>"SMTP username",
+    'status_awaiting_payment'=>"Awaiting payment",
+    'status_cancelled'=>"Cancelled",
+    'status_confirmed'=>"Confirmed",
+    'status_customer_accepted'=>"Customer accepted",
+    'status_draft'=>"Draft",
+    'status_enquiry_created'=>"Enquiry created",
+    'status_expired'=>"Expired",
+    'status_more_information_required'=>"More information required",
+    'status_payment_verification'=>"Payment verification",
+    'status_quotation_accepted'=>"Quotation accepted",
+    'status_quotation_available'=>"Quotation available",
+    'status_quoted'=>"Quoted",
+    'status_rejected'=>"Rejected",
+    'status_submitted'=>"Submitted",
+    'status_under_review'=>"Under review",
+    'tax_basis_points'=>"Tax rate in basis points (2000 = 20%)",
+    'test_email'=>"Test email delivery",
+    'test_recipient'=>"Test recipient email",
+    'upload_draft_media'=>"Upload as draft media",
+    'url_slug'=>"Page URL slug",
+    'venue_name'=>"Venue name",
+    'venue_name_ar'=>"Venue name ar",
+    'payment_bank_transfer'=>"Bank transfer",
+    'payment_external_link'=>"External payment link",
+    'add_catalogue_services'=>"Add catalogue services",
+    'add_line_item'=>"Add line item",
+    'allowed_duration_modes'=>"Allowed duration modes",
+    'base_booking_charge'=>"Base booking charge",
+    'booking_increment_minutes'=>"Booking increment minutes",
+    'check_in_date'=>"Check in date",
+    'check_out_date'=>"Check out date",
+    'daily_rate'=>"Daily rate",
+    'download_quotation_pdf'=>"Download quotation pdf",
+    'duration_day'=>"Full day",
+    'duration_hour'=>"By hour",
+    'duration_mode'=>"Duration mode",
+    'duration_night'=>"By night",
+    'end_date'=>"End date",
+    'enquiry_no_confirmation'=>"Choose a venue and requested London dates. This creates a draft where you can add documents and submit for management review. An enquiry is not a confirmed booking.",
+    'external_payment_url'=>"External payment url",
+    'full_day_hire_date'=>"Full day hire date",
+    'hourly_rate'=>"Hourly rate",
+    'inherit_document_policy'=>"Inherit document policy",
+    'issue_quotation'=>"Issue quotation",
+    'item_name'=>"Item name",
+    'label'=>"Label",
+    'line_item'=>"Line item",
+    'nightly_rate'=>"Nightly rate",
+    'prepare_quotation'=>"Prepare quotation",
+    'quotation'=>"Quotation",
+    'quotation_valid_until'=>"Quotation valid until",
+    'seasonal_nightly_rates'=>"Seasonal nightly rates",
+    'start_date'=>"Start date",
+    'terms'=>"Terms",
+    'version'=>"Version",
+    'quote_mandatory'=>"Mandatory charge",
+    'quote_refundable'=>"Refundable deposit",
+    'quote_base'=>"Base booking charge",
+    'quote_visible'=>"Visible on quotation",
+    'open_secure_request'=>"Open your secure request",
+    'settings_account'=>"Administrator account",
+    'current_password'=>"Current password",
+    'scan_attendance'=>"Scan attendance QR",
+    'scan_instructions'=>"Scan the invitation QR with your phone camera, or upload a clear QR photograph here. Staff must confirm attendance after scanning.",
+    'qr_photo'=>"QR photograph",
+    'read_qr'=>"Read QR code",
+'correspondence'=>"Messages",
+'send_message'=>"Send message",
+'sender_management'=>"Management",
+'sender_customer'=>"Customer",
+'status_message'=>"New message",
+'language_english'=>"English",
+'email_test_title'=>"Email delivery test",
+'email_test_body'=>"This message was requested by an authenticated administrator.",
+'invitation_subject'=>"Your invitation",
+'invitation_heading'=>"You are invited",
+'invitation_link'=>"View your invitation and RSVP",
+'recovery_subject'=>"Secure enquiry access",
+'recovery_link'=>"Restore access to your enquiry",
+'recovery_expiry'=>"This link expires in 30 minutes and can be used once. Confirm on the recovery page to rotate access.",
+'enable_arabic'=>"Enable Arabic and RTL",
+'hold_hours'=>"Provisional hold duration (hours)",
+'invitation_style_heritage'=>"Heritage ivory",
+'invitation_style_garden'=>"Garden celebration",
+'invitation_style_modern'=>"Modern occasion",
 ];

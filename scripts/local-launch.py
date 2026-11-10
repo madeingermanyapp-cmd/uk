@@ -19,11 +19,11 @@ try:
         try: config.chmod(0o600)
         except OSError: pass
     values=dict(line.split('=',1) for line in config.read_text().splitlines() if '=' in line)
-    compose=['docker','compose','--project-name','wonham-local','--env-file',str(config)]
+    compose=['docker','compose','--project-name',os.environ.get('MANOR_COMPOSE_PROJECT','wonham-local'),'--env-file',str(config)]
     run(*compose,'up','-d','--build','--wait','--wait-timeout','240')
     run(*compose,'exec','-T','--user','www-data','app','php','scripts/manor-init.php')
     url=f'http://localhost:{values["LOCAL_PORT"]}'
     print(f'Website: {url}\nAdmin: {url}/admin/manor\nLocal admin: {values["ADMIN_EMAIL"]}\nPassword is stored privately in {config} (ADMIN_PASSWORD).\nRepeated starts preserve your database.')
-    webbrowser.open(url)
+    if os.environ.get('MANOR_SKIP_BROWSER')!='1': webbrowser.open(url)
 except (subprocess.CalledProcessError,OSError) as exc:
     sys.exit(f'Launch failed: {exc}. Check Docker is running, the selected port is free and Docker Compose logs. Existing data has not been reset.')

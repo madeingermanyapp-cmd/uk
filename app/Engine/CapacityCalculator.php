@@ -326,7 +326,7 @@ final class CapacityCalculator
     private static function withinBookingWindow(array $tenant, string $start): bool
     {
         $tz = new \DateTimeZone($tenant['timezone'] ?? 'UTC');
-        $now = new \DateTimeImmutable('now', $tz);
+        $now = \App\Engine\Clock::now($tz);
         $value = new \DateTimeImmutable($start, $tz);
         return $value > $now && $value >= $now->modify('+' . (int)($tenant['min_advance_hours'] ?? 1) . ' hours')
             && $value <= $now->modify('+' . (int)($tenant['max_advance_days'] ?? 90) . ' days')->setTime(23,59,59);

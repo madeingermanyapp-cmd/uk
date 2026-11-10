@@ -170,6 +170,7 @@ final class Outbox
     private static function process(array $row, string $lease, array $handlers, bool $retryAtOnce): array
     {
         $handlers += [
+            'manor.notification' => [\App\Manor\Notifications::class, 'deliver'],
             'customer.access_recovery' => [CustomerCapability::class, 'deliverRecovery'],
             'booking.reminder' => [ReminderJob::class, 'deliver'],
             'booking.notification' => [\App\Application\Bookings\BookingNotifications::class, 'deliver'],

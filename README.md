@@ -1,3 +1,17 @@
+# Wonham Manor House — Full Production Release
+
+Self-hosted venue enquiries and event management built on VoxelBooking. Active development is on `develop`; `main` is retained for an accepted stable release. See [release status](docs/RELEASE_STATUS.md) before describing a build as production-approved.
+
+Start locally with `START_LOCAL.command` (macOS), `START_LOCAL.bat` (Windows) or `./START_LOCAL.sh` (Linux), with Docker and Python 3 installed. The launcher creates random private credentials, starts PHP 8.4/MySQL 8.4 plus the worker, migrates the database and prints website/Admin URLs. Repeated launches preserve data. English is the sole active language initially; only Admin can enable additional languages.
+
+Use [local setup](docs/LOCAL_SETUP.md), [administration](docs/ADMIN_GUIDE.md), [portable deployment](docs/DEPLOYMENT.md), [backup/restore](docs/BACKUP_RESTORE.md), [requirements and verification](docs/REQUIREMENTS_TRACEABILITY.md) and [test results](docs/TEST_RESULTS.md). Configure business settings/content/SMTP/payments in Admin without rebuilding; final server, domain and publication decisions are not development prerequisites.
+
+AGPL-3.0 and upstream notices are retained. Your custom code remains available in source under the modified application's licence; this does not transfer ownership of third-party software/media. Runtime secrets, uploaded media and customer documents are excluded from Git.
+
+---
+
+The original VoxelBooking manual below documents the upstream base. The Wonham-specific guides above take precedence for this deployment and its PHP 8.4 requirement.
+
 # VoxelBooking
 
 Open-source booking infrastructure for small businesses. Four booking patterns: timeslots, resources, capacity, events, in one self-hosted installation. No SaaS dependency, no vendor lock-in, and no mandatory AI-provider dependency.

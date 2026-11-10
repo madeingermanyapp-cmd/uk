@@ -186,7 +186,7 @@ final class BookingDraft
      */
     private static function assertWithinBookingWindow(array $tenant, \DateTimeImmutable $start): void
     {
-        $now = new \DateTimeImmutable('now', new \DateTimeZone($tenant['timezone']));
+        $now = \App\Engine\Clock::now(new \DateTimeZone($tenant['timezone']));
         $tooSoon = $tenant['booking_pattern'] === 'resource'
             ? $start < $now->setTime(0, 0)
             : $start <= $now || $start < $now->modify('+' . (int) $tenant['min_advance_hours'] . ' hours');

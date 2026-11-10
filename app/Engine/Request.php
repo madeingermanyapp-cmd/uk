@@ -130,7 +130,14 @@ final class Request
 
     public function ip(): string
     {
-        return $this->server['REMOTE_ADDR'] ?? '127.0.0.1';
+        $peer=$this->server['REMOTE_ADDR']??'127.0.0.1';
+        if(!TrustedProxy::contains($peer))return $peer;
+        // Walk from the nearest proxy; never accept a client-supplied leftmost address.
+        foreach(array_reverse(explode(',',$this->server['HTTP_X_FORWARDED_FOR']??'')) as $candidate){
+            $candidate=trim($candidate);if(!filter_var($candidate,FILTER_VALIDATE_IP))return $peer;
+            $peer=$candidate;if(!TrustedProxy::contains($peer))break;
+        }
+        return $peer;
     }
 
     public function isJson(): bool
@@ -144,7 +151,7 @@ final class Request
     public function isSecure(): bool
     {
         return ($this->server['HTTPS'] ?? '') === 'on'
-            || ($this->server['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+            || (TrustedProxy::contains($this->server['REMOTE_ADDR']??'')&&($this->server['HTTP_X_FORWARDED_PROTO']??'')==='https');
     }
 
     public function setAttribute(string $key, mixed $value): void

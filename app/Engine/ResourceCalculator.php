@@ -41,7 +41,7 @@ final class ResourceCalculator
     ): array {
         $tenantId = $tenant['id'];
         $timezone = $tenant['timezone'] ?? 'UTC';
-        $now = new \DateTimeImmutable('now', new \DateTimeZone($timezone));
+        $now = \App\Engine\Clock::now(new \DateTimeZone($timezone));
 
         // Validate resource
         $resource = self::loadResource($resourceId, $tenantId);
@@ -154,7 +154,7 @@ final class ResourceCalculator
 
         $checkInDate = new \DateTimeImmutable($checkIn, $tz);
         $checkOutDate = new \DateTimeImmutable($checkOut, $tz);
-        $now = new \DateTimeImmutable('now', $tz);
+        $now = \App\Engine\Clock::now($tz);
 
         // Check-out must be after check-in
         if ($checkOutDate <= $checkInDate) {
@@ -419,4 +419,16 @@ final class ResourceCalculator
             'error'     => $reason,
         ];
     }
+    /** Nightly price calculation shared with the venue workflow. Inventory remains
+     * authoritative in Manor\Inventory because venue check-in/out times are not midnight. */
+    public static function quoteNightly(array $tenant,string $resourceId,string $checkIn,string $checkOut): array
+    {
+        $resource=self::loadResource($resourceId,$tenant['id']);
+        if(!$resource)throw new \DomainException('Accommodation resource is unavailable.');
+        $tz=new \DateTimeZone($tenant['timezone']??'Europe/London');
+        $start=new \DateTimeImmutable($checkIn,$tz);$end=new \DateTimeImmutable($checkOut,$tz);
+        if($end<=$start)throw new \DomainException('Check-out must be after check-in.');
+        return self::calculatePricing($resourceId,$tenant['id'],$start,$end,$resource['price_per_night']===null?null:(string)$resource['price_per_night']);
+    }
+
 }

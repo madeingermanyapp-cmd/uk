@@ -92,6 +92,29 @@ return function (Router $router): void {
 
         // ── Root redirect ──
         $router->get('/', \App\Manor\Controller::class, 'home');
+        $router->get('/manor/quotation/{id}/pdf', \App\Manor\QuoteController::class, 'pdf');
+        $router->get('/manor/media/{id:[a-f0-9]{48}}.{ext:jpg|png|webp|mp4}', \App\Manor\PublicController::class, 'media');
+        $router->get('/page/{slug}', \App\Manor\PublicController::class, 'page');
+        $router->get('/manor/recover', \App\Manor\PublicController::class, 'recovery');
+        $router->post('/manor/recover', \App\Manor\PublicController::class, 'recovery');
+        $router->get('/manor/recover/{token}', \App\Manor\PublicController::class, 'recovery');
+        $router->post('/manor/recover/{token}', \App\Manor\PublicController::class, 'recovery');
+        $router->get('/manor/invitation/{token}', \App\Manor\GuestController::class, 'show');
+        $router->post('/manor/invitation/{token}', \App\Manor\GuestController::class, 'rsvp');
+        $router->get('/manor/invitation/{token}/qr', \App\Manor\GuestController::class, 'qr');
+        $router->group([AuthMiddleware::class], function (Router $router) {
+            $router->get('/manor/check-in/{token}', \App\Manor\GuestController::class, 'scan');
+            $router->post('/manor/check-in/{token}', \App\Manor\GuestController::class, 'scan');
+            $router->get('/admin/manor/preview', \App\Manor\PublicController::class, 'preview');
+            $router->get('/admin/manor/reference-media', \App\Manor\PublicController::class, 'reference');
+            $router->get('/admin/manor/settings/{section}', \App\Manor\SettingsController::class, 'show');
+            $router->post('/admin/manor/settings/{section}', \App\Manor\SettingsController::class, 'save');
+            $router->get('/admin/manor/guests', \App\Manor\GuestController::class, 'manage');
+            $router->post('/admin/manor/guests', \App\Manor\GuestController::class, 'mutate');
+            $router->get('/admin/manor/scanner', \App\Manor\GuestController::class, 'scanner');
+            $router->post('/admin/manor/scanner', \App\Manor\GuestController::class, 'scanner');
+            $router->get('/admin/manor/attendance.csv', \App\Manor\GuestController::class, 'csv');
+        });
         $router->get('/manor/enquire', \App\Manor\Controller::class, 'enquiry');
         $router->post('/manor/enquire', \App\Manor\Controller::class, 'create');
         $router->get('/manor/request/{token}', \App\Manor\Controller::class, 'portal');

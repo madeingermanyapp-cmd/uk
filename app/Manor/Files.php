@@ -37,15 +37,19 @@ final class Files
     {
         [$mime]=self::validate($file,['image/jpeg','image/png','image/webp','video/mp4'],25*1048576);
         $ext=['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp','video/mp4'=>'mp4'][$mime];
-        $root=dirname(__DIR__,2).'/public/uploads/manor'; if(!is_dir($root)) mkdir($root,0755,true);
-        $name=bin2hex(random_bytes(24)).'.'.$ext; $path=$root.'/'.$name;
+        $root=dirname(__DIR__,2).'/storage/media/manor'; if(!is_dir($root)) mkdir($root,0700,true);
+        $id=bin2hex(random_bytes(24));$name=$id.'.'.$ext;$path=$root.'/'.$name;
         if(str_starts_with($mime,'image/')) {
-            $image=imagecreatefromstring(file_get_contents($file['tmp_name']));
-            if(!$image) throw new \DomainException('Image cannot be decoded.');
-            // Re-encode to discard metadata and non-image payloads. Keep an efficient public size.
-            if(imagesx($image)>2400) $image=imagescale($image,2400);
-            match($mime){'image/jpeg'=>imagejpeg($image,$path,88),'image/png'=>imagepng($image,$path),'image/webp'=>imagewebp($image,$path,88)};
-        } elseif(!move_uploaded_file($file['tmp_name'],$path)) throw new \RuntimeException('Media storage failed.');
-        return '/uploads/manor/'.$name;
+            $image=@imagecreatefromstring(file_get_contents($file['tmp_name']));
+            if(!$image)throw new \DomainException('Image cannot be decoded.');
+            if(imagesx($image)>2400)$image=imagescale($image,2400);
+            $written=match($mime){'image/jpeg'=>imagejpeg($image,$path,88),'image/png'=>imagepng($image,$path),'image/webp'=>imagewebp($image,$path,88)};
+            if(!$written)throw new \RuntimeException('Media storage failed.');
+            if(imagesx($image)>720){$small=imagescale($image,720);imagewebp($small,$root.'/'.$id.'-720.webp',85);imagedestroy($small);}
+            imagedestroy($image);
+        }elseif(!move_uploaded_file($file['tmp_name'],$path))throw new \RuntimeException('Media storage failed.');
+        chmod($path,0600);
+        DB::execute('INSERT INTO manor_media(id,storage_name,original_name,mime,bytes,alt,rights) VALUES(?,?,?,?,?,?,?)',[$id,$name,mb_substr(basename($file['name']),0,255),$mime,filesize($path),'','']);
+        return '/manor/media/'.$name;
     }
 }

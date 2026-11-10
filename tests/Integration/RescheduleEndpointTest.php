@@ -368,6 +368,11 @@ final class RescheduleEndpointTest extends TestCase
             [self::HAPPY_BOOKING_ID, $tenantId, self::RESCHEDULE_CUSTOMER_ID, self::RESCHEDULE_SERVICE_ID]
         );
 
+        // The shared fixture books +3 days at the current wall-clock hour.
+        // It can overlap this test's fixed 11:00 target after 10:00 UTC.
+        // This happy path owns its own booking; remove only that unrelated fixture.
+        Database::execute('DELETE FROM bookings WHERE tenant_id=? AND id=?',[$tenantId,TestFixtures::BOOKING_ID]);
+
         // Clear any prior reschedule-produced bookings for clean assertion
         Database::execute(
             "DELETE FROM `bookings` WHERE `tenant_id` = ? AND `source` = 'admin' AND `id` != ?",

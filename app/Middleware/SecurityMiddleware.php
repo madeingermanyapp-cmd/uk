@@ -40,7 +40,7 @@ final class SecurityMiddleware
         $forceHttps = ($_ENV['FORCE_HTTPS'] ?? 'false') === 'true';
 
         // HTTPS redirect
-        if ($forceHttps && !$request->isSecure()) {
+        if ($forceHttps && !$request->isSecure() && !($request->path()==='/health' && in_array($_SERVER['REMOTE_ADDR']??'',['127.0.0.1','::1'],true))) {
             $url = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $request->path();
 
             return Response::redirect($url, 301);
@@ -85,7 +85,7 @@ final class SecurityMiddleware
             // The controller already set a CSP with frame-ancestors for the
             // configured allowed domains. Do NOT overwrite it here.
             // Only supplement if the controller didn't set one.
-        } elseif (str_starts_with($path, '/install') || str_starts_with($path, '/admin') || str_starts_with($path, '/book/')) {
+        } elseif (!array_key_exists('Content-Security-Policy', $response->getHeaders()) && (str_starts_with($path, '/install') || str_starts_with($path, '/admin') || str_starts_with($path, '/book/'))) {
             $response->header('Content-Security-Policy',
                 "default-src 'self'; script-src 'self' 'unsafe-inline'; "
                 . "style-src 'self' 'unsafe-inline'; "

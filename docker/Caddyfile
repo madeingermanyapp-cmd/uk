@@ -1,0 +1,11 @@
+{
+    admin off
+}
+{$SITE_ADDRESS} {
+    encode zstd gzip
+    request_body {
+        max_size 28MB
+    }
+    reverse_proxy app:80
+    # No access log: private request and invitation paths contain bearer tokens.
+}

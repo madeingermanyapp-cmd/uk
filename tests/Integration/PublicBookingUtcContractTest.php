@@ -20,6 +20,8 @@ final class PublicBookingUtcContractTest extends TestCase
     protected function setUp(): void
     {
         TestFixtures::provision();
+        // These fixtures intentionally exercise the historical 2026 DST boundaries.
+        \App\Engine\Clock::freezeForTests('2026-10-01T00:00:00Z');
         $this->baseUrl = rtrim($_ENV['APP_TEST_URL'] ?? 'https://voxelbooking-app.test', '/');
         $this->tenantId = Ulid::generate();
         $this->slug = 'test-utc-' . strtolower(substr($this->tenantId, -10));
@@ -28,6 +30,7 @@ final class PublicBookingUtcContractTest extends TestCase
 
     protected function tearDown(): void
     {
+        \App\Engine\Clock::freezeForTests(null);
         if (isset($this->tenantId)) {
             Database::execute('DELETE FROM tenants WHERE id = ?', [$this->tenantId]);
         }

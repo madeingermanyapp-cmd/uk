@@ -296,7 +296,7 @@ final class BookingService
 
         $tz = new \DateTimeZone($tenant['timezone'] ?? 'UTC');
         $startDt = new \DateTimeImmutable($booking['start_datetime'], $tz);
-        $now = new \DateTimeImmutable('now', $tz);
+        $now = \App\Engine\Clock::now($tz);
 
         $diffSeconds = $startDt->getTimestamp() - $now->getTimestamp();
         $diffHours = $diffSeconds / 3600;
@@ -327,7 +327,7 @@ final class BookingService
 
         $tz = new \DateTimeZone($tenant['timezone'] ?? 'UTC');
         $startDt = new \DateTimeImmutable($booking['start_datetime'], $tz);
-        $now = new \DateTimeImmutable('now', $tz);
+        $now = \App\Engine\Clock::now($tz);
 
         $diffSeconds = $startDt->getTimestamp() - $now->getTimestamp();
         $diffHours = $diffSeconds / 3600;
@@ -608,7 +608,7 @@ final class BookingService
                 'capacity' => self::resolveCapacityTarget($target, $booking, $tenant, $tz),
                 'event' => self::resolveEventTarget($target, $booking, $tenant, $tz),
             };
-            if ($resolved['new_start_dt'] <= new \DateTimeImmutable('now', $tz)) {
+            if ($resolved['new_start_dt'] <= \App\Engine\Clock::now($tz)) {
                 throw new \RuntimeException('too_soon');
             }
             self::recheckAvailability($booking['booking_pattern'], $booking, $tenant, $resolved, $booking['id']);
@@ -1036,7 +1036,7 @@ final class BookingService
         $tz = new \DateTimeZone($tenant['timezone'] ?? 'UTC');
         $reminderAt = $startDt->modify("-{$reminderHours} hours");
 
-        if ($reminderAt <= new \DateTimeImmutable('now', $tz)) {
+        if ($reminderAt <= \App\Engine\Clock::now($tz)) {
             return;
         }
 

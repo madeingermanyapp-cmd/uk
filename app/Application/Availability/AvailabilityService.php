@@ -509,7 +509,7 @@ final class AvailabilityService
     private static function inHorizon(array $tenant, string $start): bool
     {
         $tz = new \DateTimeZone($tenant['timezone']);
-        $now = new \DateTimeImmutable('now', $tz);
+        $now = \App\Engine\Clock::now($tz);
         $at = new \DateTimeImmutable($start, $tz);
 
         return $at > $now

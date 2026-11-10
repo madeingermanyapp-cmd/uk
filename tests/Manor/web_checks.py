@@ -33,7 +33,7 @@ s,html,_,_=anon.req('/manor/enquire');check(s==200 and 'Create draft enquiry' in
 unit=re.search(r'<option value="([A-Z0-9]{26})"',html).group(1)
 s,_,_,_=anon.req('/manor/enquire',{'name':'QA'});check(s==403,'CSRF required for enquiry')
 # Reset public POST rate budget only through regular limited requests; this suite stays under ten writes.
-s,portal,url,_=anon.req('/manor/enquire',{'_csrf_token':token(html),'unit_id':unit,'start':'2027-07-01T10:00','end':'2027-07-01T12:00','guests':'2','name':'Synthetic HTTP QA','email':uuid.uuid4().hex+'@wonham.test','details':'Automated local-only HTTP fixture','consent':'1'})
+s,portal,url,_=anon.req('/manor/enquire',{'_csrf_token':token(html),'unit_id':unit,'consent_version':re.search(r'name="consent_version" value="([^"]+)"',html).group(1),'start':'2027-07-01T10:00','end':'2027-07-01T12:00','guests':'2','name':'Synthetic HTTP QA','email':uuid.uuid4().hex+'@wonham.test','details':'Automated local-only HTTP fixture','consent':'1'})
 check(s==200 and '/manor/request/' in url and 'Save this private page address' in portal,'draft creates private portal and reference')
 path=urllib.parse.urlsplit(url).path
 s,_,redirect_url,_=anon.req('/admin/manor');check(s==200 and redirect_url.endswith('/admin/login'),'admin redirects anonymous to login')
@@ -54,8 +54,14 @@ s,_,_,_=anon.req('/install');check(s==404,'installer closed after initialization
 s,_,_,_=admin.req('/admin/manor',{'_csrf_token':token(dashboard),'action':'media','section':'hero','alt':'QA'},('media','evil.svg','image/svg+xml',b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'));check(s==422,'active SVG media rejected')
 def chunk(t,d):return struct.pack('!I',len(d))+t+d+struct.pack('!I',zlib.crc32(t+d)&0xffffffff)
 png=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('!2I5B',1,1,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(b'\x00\xff\x00\x00'))+chunk(b'IEND',b'')
-s,_,_,_=admin.req('/admin/manor',{'_csrf_token':token(dashboard),'action':'media','section':'qa-media','alt':'Synthetic QA pixel'},('media','pixel.png','image/png',png));check(s==200,'valid public image upload re-encoded')
+s,media_before,_,_=admin.req('/admin/manor/settings/media');media_ids=set(re.findall(r'name=\"media_id\" value=\"([a-f0-9]{48})\"',media_before))
+s,_,_,_=admin.req('/admin/manor',{'_csrf_token':token(dashboard),'action':'media','section':'qa-media','alt':'Synthetic QA pixel'},('media','pixel.png','image/png',png));check(s==200,'valid media upload re-encoded into a protected draft')
+s,media_after,_,_=admin.req('/admin/manor/settings/media');created_media=set(re.findall(r'name=\"media_id\" value=\"([a-f0-9]{48})\"',media_after))-media_ids
+for asset in created_media:
+ s,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':token(dashboard),'action':'media_remove','media_id':asset});check(s==200,'synthetic media removed from subsequent publication drafts')
 s,_,_,_=anon.req(path,{'_csrf_token':csrf,'action':'submit'});check(s==200,'customer submits request for review')
 s,_,_,_=anon.req(path,{'_csrf_token':csrf,'action':'transition','status':'confirmed'});check(s==422,'customer cannot invoke management action')
 s,_,_,_=anon.req('/api/agent/v2/public/session',{});check(s==403,'legacy write surface cannot bypass inventory')
+request_id=re.search(r'name=\"id\" value=\"([A-Z0-9]{26})\"',portal).group(1)
+admin.req('/admin/manor',{'_csrf_token':token(dashboard),'action':'transition','id':request_id,'status':'cancelled'})
 print(f'{count} HTTP assertions passed.')

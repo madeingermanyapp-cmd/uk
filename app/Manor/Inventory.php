@@ -13,6 +13,16 @@ final class Inventory
             return $fn($tenant);
         });
     }
+    public static function enabled(string $unitId): bool
+    {
+        $seen=[];$id=$unitId;
+        while($id){
+            if(isset($seen[$id]))return false;$seen[$id]=true;
+            $row=DB::query('SELECT parent_id,enabled FROM manor_units WHERE id=?',[$id])[0]??null;
+            if(!$row||!$row['enabled'])return false;$id=$row['parent_id'];
+        }
+        return true;
+    }
     public static function resources(string $unitId): array
     {
         $units=DB::query('SELECT * FROM manor_units'); $ids=[]; $seen=[];

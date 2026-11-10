@@ -1455,6 +1455,11 @@ final class Mailer
             }
         }
 
+        // Encrypted Manor SMTP overrides are opened only for transport use.
+        if (($config['mail_transport'] ?? '') === 'manor') {
+            $config = array_replace($config, \App\Manor\MailSettings::transportConfig());
+        }
+
         self::$configCache = $config;
         return $config;
     }

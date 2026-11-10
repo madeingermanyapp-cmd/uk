@@ -15,4 +15,4 @@ All sections use `public/manor/style.css`. Shell/navigation: `templates/manor/st
 | Newsletter | newsletter.php | flags.newsletter |
 | Footer | end.php | address, source link |
 
-`sections` toggles visibility. Settings are edited at `/admin/manor` without rebuilding. Booking portal: `enquiry.php`, `request.php`; console: `admin.php`. Business logic: `app/Manor/`; routes: `app/routes.php`; schema: migration 043. Translation keys: `lang/en/manor.php`.
+`sections` toggles visibility. Settings are edited under `/admin/manor/settings/content` and `/admin/manor/settings/media` without rebuilding. Booking portal: `enquiry.php`, `request.php`; console: `admin.php`. Business logic: `app/Manor/`; routes: `app/routes.php`; schema: migrations 043–046. Interface dictionaries: `lang/en/manor.php`, `lang/ar/manor.php`, with separate validation-error dictionaries. Public content translations are drafted in Admin. English-only startup is enforced by Settings/Language; the selector appears only after explicit Admin enablement.

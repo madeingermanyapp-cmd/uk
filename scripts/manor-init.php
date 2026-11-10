@@ -21,7 +21,13 @@ if(!DB::query("SELECT id FROM tenants WHERE slug='wonham-manor'")){
   foreach(['Suite Meeting Room','Countryside Meeting Room'] as $name){$resource=Ulid::generate();DB::execute('INSERT INTO resources(id,tenant_id,name) VALUES(?,?,?)',[$resource,$id,$name]);DB::execute("INSERT INTO manor_units(id,tenant_id,parent_id,resource_id,name,mode,data) VALUES(?,?,?,?,?,'MEETING_ROOM',?)",[Ulid::generate(),$id,$floor,$resource,$name,json_encode(['description'=>'Draft example — capacity, facilities and images require management confirmation.','capacity'=>null,'pricing_mode'=>'PRICE_ON_REQUEST','min_minutes'=>60,'max_minutes'=>1440,'hours'=>['08:00','23:00'],'document_keys'=>[]])]);}
  });
 }
+if(!DB::query('SELECT id FROM manor_invitation_templates LIMIT 1')){
+ foreach(['heritage'=>'Heritage ivory','garden'=>'Garden celebration','modern'=>'Modern occasion'] as $style=>$name){
+  DB::execute('INSERT INTO manor_invitation_templates(id,name,style,data) VALUES(?,?,?,?)',[Ulid::generate(),$name,$style,json_encode(['heading'=>'You are invited','message'=>'Please join us for a special occasion.','footer'=>'We look forward to welcoming you.','heading_ar'=>'دعوة خاصة','message_ar'=>'يسرّنا دعوتكم لمشاركتنا هذه المناسبة.','footer_ar'=>'نتطلع إلى الترحيب بكم.','accent'=>'#b45d32','background'=>'#fffaf0'],JSON_UNESCAPED_UNICODE)]);
+ }
+}
 DB::upsertSetting('installed_at',gmdate('c'));
 DB::upsertSetting('app_name','Wonham Manor House');
-if($local)DB::upsertSetting('mail_transport','log');
+if($local&&!DB::query("SELECT name FROM manor_secrets WHERE name='smtp'"))DB::upsertSetting('mail_transport','log');
+foreach(['private/manor','media/manor','keys','sessions'] as $path){$dir=dirname(__DIR__).'/storage/'.$path;if(!is_dir($dir))mkdir($dir,0700,true);}
 echo "Wonham initialization complete. Existing records preserved.\n";

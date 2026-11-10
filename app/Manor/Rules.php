@@ -55,6 +55,7 @@ final class Rules
             $net=self::pence((string)$item['amount'])*$qty;
             $lineTax=intdiv($net*$rate+5000,10000);
             $line=['name'=>mb_substr($item['name'],0,255),'description'=>mb_substr($item['description']??'',0,2000),'amount'=>(string)$item['amount'],'quantity'=>$qty,'tax_bps'=>$rate,'mandatory'=>$mandatory,'refundable'=>$refundable,'base'=>(bool)($item['base']??false),'visible'=>(bool)($item['visible']??true),'selected'=>$chosen,'net_pence'=>$net,'tax_pence'=>$lineTax];
+            if ($mandatory && !$line['visible']) throw new \DomainException('Mandatory charges must be visible on the quotation.');
             if (!$mandatory && !$line['visible']) throw new \DomainException('Optional items must be visible to customers.');
             if ($chosen) { if ($refundable) $deposit+=$net+$lineTax; else { $service+=$net; $tax+=$lineTax; } }
             $lines[]=$line;

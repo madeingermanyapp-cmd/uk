@@ -29,6 +29,9 @@ final class PayloadCipher
      */
     /** Columns sealed with the payload key. Data here means a key once existed. */
     private const SEALED_COLUMNS = [
+        ['manor_guests', 'token_cipher'],
+        ['manor_request_details', 'secret_cipher'],
+        ['manor_secrets', 'secret_cipher'],
         ['agent_operation_receipts', 'result_cipher'],
         ['agent_previews', 'payload_cipher'],
         ['delivery_outbox', 'payload_cipher'],

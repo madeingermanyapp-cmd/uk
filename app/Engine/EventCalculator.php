@@ -48,7 +48,7 @@ final class EventCalculator
     {
         $tenantId = $tenant['id'];
         $tz = new \DateTimeZone($tenant['timezone'] ?? 'UTC');
-        $now = new \DateTimeImmutable('now', $tz);
+        $now = \App\Engine\Clock::now($tz);
         $maxAdvance = (int) ($tenant['max_advance_days'] ?? 90);
         $maxDate = $now->modify("+{$maxAdvance} days")->setTime(23,59,59);
         if (!empty($window['from'])) $now = max($now, new \DateTimeImmutable($window['from'].' 00:00:00', $tz));

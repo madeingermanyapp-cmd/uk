@@ -11,3 +11,14 @@ public/uploads/*
 node_modules
 *.sql
 *.sql.gz
+
+storage/media/
+
+!public/uploads/.htaccess
+!public/uploads/manor/
+public/uploads/manor/*
+!public/uploads/manor/.htaccess
+
+storage/cache/*
+
+.demo

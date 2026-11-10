@@ -66,7 +66,7 @@ final class TimeSlotCalculator
         }
 
         // Enforce min_advance_hours and max_advance_days
-        $now = new \DateTimeImmutable('now', new \DateTimeZone($timezone));
+        $now = \App\Engine\Clock::now(new \DateTimeZone($timezone));
         $requestedDate = new \DateTimeImmutable($date, new \DateTimeZone($timezone));
 
         $minAdvance = (int) ($tenant['min_advance_hours'] ?? 1);

@@ -173,7 +173,7 @@ final class BookingCommands
 
         $tz = new \DateTimeZone($tenant['timezone']);
         $at = (new \DateTimeImmutable($start, $tz))->modify('-' . max(1, (int) $tenant['reminder_hours_before']) . ' hours');
-        if ($at <= new \DateTimeImmutable('now', $tz)) {
+        if ($at <= \App\Engine\Clock::now($tz)) {
             return;
         }
 

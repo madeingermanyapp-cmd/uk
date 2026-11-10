@@ -55,6 +55,12 @@ final class RescheduleAvailabilityTest extends TestCase
         Locale::init(dirname(__DIR__, 2));
         Locale::setSystemDefaults([]);
 
+        if(in_array($this->name(),[
+            'test_public_slot_reads_include_canonical_utc_without_changing_wall_time_fields',
+            'test_event_occurrence_utc_uses_full_overnight_end_date',
+            'test_events_preserve_configured_end_clock_and_calendar_day_offset_across_fall_back',
+        ],true)) \App\Engine\Clock::freezeForTests('2026-10-01T00:00:00Z');
+
         $this->date = (new \DateTimeImmutable('+14 days', new \DateTimeZone('UTC')))->format('Y-m-d');
         $dow = (int) (new \DateTimeImmutable($this->date))->format('N') - 1;
         Database::execute("INSERT INTO tenants VALUES ('ours', 'ours', 'active', 'timeslot', 'UTC', 0, 365, 30, 1, 0, 'EUR')");
@@ -70,6 +76,7 @@ final class RescheduleAvailabilityTest extends TestCase
 
     protected function tearDown(): void
     {
+        \App\Engine\Clock::freezeForTests(null);
         $this->connection->setValue(null, $this->originalConnection);
         foreach ($this->originalLocale as $name => $value) (new \ReflectionProperty(Locale::class, $name))->setValue(null, $value);
     }

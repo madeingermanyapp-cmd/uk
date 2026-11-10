@@ -4,7 +4,8 @@
     "type": "project",
     "license": "AGPL-3.0-only",
     "require": {
-        "php": "^8.3",
+        "dompdf/dompdf": "^3.1",
+        "endroid/qr-code": "^6.0",
         "ext-curl": "*",
         "ext-fileinfo": "*",
         "ext-gd": "*",
@@ -14,10 +15,13 @@
         "ext-pdo_mysql": "*",
         "ext-sodium": "*",
         "ext-zip": "*",
+        "khaled.alshamaa/ar-php": "^7.0",
+        "khanamiryan/qrcode-detector-decoder": "^2.0",
         "league/oauth2-server": "^9.3",
         "nikic/fast-route": "^1.3",
         "nyholm/psr7": "^1.8",
         "opis/json-schema": "^2.6",
+        "php": "^8.4",
         "phpmailer/phpmailer": "^6.9",
         "rlanvin/php-rrule": "^2.4",
         "robinvdvleuten/ulid": "^5.0"

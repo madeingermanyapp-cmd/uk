@@ -731,9 +731,10 @@ final class LocaleTest extends TestCase
 
     public function testLocaleOptionsDoesNotRequireTranslationDirectories(): void
     {
-        // Even though only lang/en/ exists, all 12 locales must be returned
+        // Locales without dictionaries remain selectable for formatting.
         $this->assertTrue(Locale::hasTranslations('en'));
-        $this->assertFalse(Locale::hasTranslations('ar'));
+        $this->assertFalse(Locale::hasTranslations('de'));
+        $this->assertTrue(Locale::hasTranslations('ar'));
         // But ar must still be in localeOptions
         $options = Locale::localeOptions();
         $this->assertArrayHasKey('ar', $options);
@@ -777,11 +778,11 @@ final class LocaleTest extends TestCase
 
     public function testResolveForBookingBrowserPreferenceNeedsTranslations(): void
     {
-        // Browser prefers Arabic, but browser negotiation still requires translations
+        // Browser prefers German, but browser negotiation still requires translations
         // to avoid raw translation keys in the UI. Falls back to tenant default.
         $tenant = ['locale' => 'en'];
-        Locale::resolveForBooking($tenant, 'ar,en;q=0.5');
-        // Browser ar has no translations, so negotiator returns en, not ar
+        Locale::resolveForBooking($tenant, 'de,en;q=0.5');
+        // German has no dictionaries, so negotiation falls back to English.
         $this->assertSame('en', Locale::getLocale());
     }
 
