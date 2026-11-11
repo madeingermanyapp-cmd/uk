@@ -1,7 +1,8 @@
 <?php
 $slots=[];
-foreach(['hero','heritage','why','why_wide','faq','contact','logo','favicon'] as $slot)$slots[$slot]=__('manor.media_slot_'.$slot);
+foreach(['hero','heritage','why','why_wide','grounds','gallery','faq','contact','logo','favicon'] as $slot)$slots[$slot]=__('manor.media_slot_'.$slot);
 foreach($units as $unit)$slots[$unit['id']]=$unit['name'];
+foreach($pages as $cmsPage)$slots['page-'.$cmsPage['slug']]=$cmsPage['title'].' / '.$cmsPage['locale'];
 $sectionSelect=static function(string $selected='hero')use($slots):void { ?>
 <label><?=me(__('manor.media_section'))?><select name="section"><?php foreach($slots as $value=>$label):?><option value="<?=me($value)?>" <?=$value===$selected?'selected':''?>><?=me($label)?></option><?php endforeach?></select></label>
 <?php };

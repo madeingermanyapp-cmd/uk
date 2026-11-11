@@ -1,0 +1,3 @@
+<?php if(array_filter($settings['media'],fn($entry)=>($entry['section']??'')==='grounds')):?>
+<section id="grounds" class="grounds-section"><div class="grounds-copy"><p class="eyebrow"><?=me(__('manor.grounds_eyebrow'))?></p><h2><?=me($settings['grounds_title'])?></h2><p><?=me($settings['grounds_text'])?></p><?php if(array_filter($settings['published_pages']??[],fn($p)=>$p['slug']==='house-and-grounds')):?><a class="outline-button" href="/page/house-and-grounds"><?=me(__('manor.explore_grounds'))?></a><?php endif?></div><div class="grounds-photograph"><?=media($settings,'grounds')?></div></section>
+<?php endif?>

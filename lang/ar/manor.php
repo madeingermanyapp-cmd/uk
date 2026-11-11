@@ -1,5 +1,17 @@
 <?php
 return [
+    'grounds_eyebrow'=>'خارج المنزل',
+    'gallery_eyebrow'=>'المنزل والبحيرة والحدائق',
+    'explore_grounds'=>'استكشف المنزل والحدائق',
+    'enlarge_photo'=>'تكبير الصورة:',
+    'media_slot_grounds'=>'الصورة الرئيسية للبحيرة والحدائق',
+    'media_slot_gallery'=>'معرض صور العقار',
+    'section_grounds'=>'قسم البحيرة والحدائق',
+    'section_gallery'=>'معرض الصور',
+    'content_grounds_title'=>'عنوان البحيرة والحدائق',
+    'content_grounds_text'=>'وصف البحيرة والحدائق',
+    'content_gallery_title'=>'عنوان معرض الصور',
+    'content_gallery_text'=>'مقدمة معرض الصور',
     'media_slot_hero'=>'الصورة الرئيسية',
     'media_slot_heritage'=>'صور التراث',
     'media_slot_why'=>'لماذا وونهام - صورة العقار',

@@ -57,3 +57,9 @@ Open **Settings > Media**. Each placement shows its photograph and a readable se
 Approve the new asset in **Media library** with its source/usage record, review **Preview current draft**, then open **Website content** and publish the approved draft. The latest published content is the baseline for subsequent edits; older drafts never silently replace live content. Removing a placement keeps the library asset available for reuse. Removing a library asset withdraws that asset everywhere.
 
 Client-requested reference property/gathering photographs and the additional property photograph were uploaded through these normal controls to both local previews on 10 November 2026. Their recorded source is the supplied reference/new photograph and the client's explicit usage instruction, without independently claiming copyright ownership. These are runtime media and database configuration, preserved through the documented backup/restore workflow rather than committed as uploaded files to Git.
+
+## Lake, gardens and supplied website content
+
+The grounds/gallery headings and introductions are in **Settings > Website content**. Their section visibility can be switched independently. **Media** provides named Lake & gardens and Estate gallery slots, plus published/draft CMS page destinations. The gallery caption is the asset description; replace and reorder entries using the same media controls. Published CMS pages automatically appear in the footer.
+
+**Pages & legal content** contains the four public informational pages and private review drafts imported from `website content.docx`. Unconfirmed admission prices, opening times, facilities, policies and proposed ticketing requirements remain drafts. Plan Your Visit has a safe public version and an editable owner-review draft. Editing the latter does not change the public page until explicitly approved and published. See `CONTENT_MAPPING.md` for the complete mapping.

@@ -4,7 +4,7 @@ namespace App\Manor;
 use App\Engine\{Database as DB,Ulid,Auth};
 final class Content
 {
-    public const KEYS=['logo_url','favicon_url','hero_title','hero_eyebrow','hero_text','cta','intro_title','intro_text','heritage_title','heritage_text','why_title','why_items','why_texts','venues_title','faq_title','faqs','contact_title','contact_text','seo_title','seo_description','sections','media','translated_content','terms','privacy','consent','navigation','newsletter_title','newsletter_text'];
+    public const KEYS=['logo_url','favicon_url','hero_title','hero_eyebrow','hero_text','cta','intro_title','intro_text','heritage_title','heritage_text','why_title','why_items','why_texts','grounds_title','grounds_text','gallery_title','gallery_text','venues_title','faq_title','faqs','contact_title','contact_text','seo_title','seo_description','sections','media','translated_content','terms','privacy','consent','navigation','newsletter_title','newsletter_text'];
     public static function consentVersion(): string
     {
         return DB::query("SELECT id FROM manor_content_versions WHERE status='published' ORDER BY approved_at DESC,id DESC LIMIT 1")[0]['id']??'draft';
@@ -14,7 +14,9 @@ final class Content
         $published=DB::query("SELECT id,data FROM manor_content_versions WHERE status='published' ORDER BY approved_at DESC,id DESC LIMIT 1")[0]??null;
         $row=DB::query("SELECT * FROM manor_content_versions WHERE status='draft' AND id>? ORDER BY created_at DESC,id DESC LIMIT 1",[$published['id']??''])[0]??null;
         $base=array_replace(Settings::get(),$published?json_decode($published['data'],true):[]);
-        return ['id'=>$row['id']??null,'data'=>$row?array_replace($base,json_decode($row['data'],true)):$base];
+        $data=$row?array_replace($base,json_decode($row['data'],true)):$base;
+        $data['sections']=array_replace(Settings::defaults()['sections'],$data['sections']??[]);
+        return ['id'=>$row['id']??null,'data'=>$data];
     }
     public static function publicSettings(bool $preview=false): array
     {
@@ -38,7 +40,9 @@ final class Content
         $settings['translated_content']=array_replace(Settings::defaults()['translated_content'],$settings['translated_content']??[]);
         $locale=\App\Engine\Locale::getLocale();
         if($locale!=='en')$settings=array_replace($settings,array_intersect_key($settings['translated_content'][$locale]??[],array_flip(array_diff(self::KEYS,['media','logo_url','favicon_url','sections']))));
+        $settings['sections']=array_replace(Settings::defaults()['sections'],$settings['sections']??[]);
         $settings['navigation']=Settings::navigation($settings['navigation']);
+        $settings['published_pages']=DB::query('SELECT slug,title FROM manor_pages WHERE enabled=1 AND locale=? ORDER BY title',[$locale]);
         return $settings;
     }
     public static function saveDraft(array $data): string

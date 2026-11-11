@@ -1,5 +1,17 @@
 <?php
 return [
+    'grounds_eyebrow'=>'Beyond the house',
+    'gallery_eyebrow'=>'House, lake & gardens',
+    'explore_grounds'=>'Explore the house & grounds',
+    'enlarge_photo'=>'Enlarge photograph:',
+    'media_slot_grounds'=>'Lake & gardens feature photograph',
+    'media_slot_gallery'=>'Estate photograph gallery',
+    'section_grounds'=>'Lake & gardens section',
+    'section_gallery'=>'Photograph gallery',
+    'content_grounds_title'=>'Lake & gardens heading',
+    'content_grounds_text'=>'Lake & gardens description',
+    'content_gallery_title'=>'Gallery heading',
+    'content_gallery_text'=>'Gallery introduction',
     'media_slot_hero'=>'Hero / main photograph',
     'media_slot_heritage'=>'Heritage photographs',
     'media_slot_why'=>'Why choose Wonham - property photograph',

@@ -86,7 +86,7 @@ final class SettingsController
             $asset=DB::query('SELECT * FROM manor_media WHERE id=? AND deleted_at IS NULL',[$r->string('media_id')])[0]??null;
             if(!$asset)throw new \DomainException('Media asset not found.');
             $section=$r->string('section');
-            if(!in_array($section,['hero','heritage','why','why_wide','faq','contact','logo','favicon'],true)&&!DB::query('SELECT id FROM manor_units WHERE id=?',[$section]))throw new \DomainException('Choose a website section or venue.');
+            if(!in_array($section,['hero','heritage','why','why_wide','grounds','gallery','faq','contact','logo','favicon'],true)&&!DB::query('SELECT id FROM manor_units WHERE id=?',[$section])&&!(str_starts_with($section,'page-')&&DB::query('SELECT id FROM manor_pages WHERE slug=?',[substr($section,5)])))throw new \DomainException('Choose a website section or venue.');
             if(in_array($section,['logo','favicon'],true)&&!str_starts_with($asset['mime'],'image/'))throw new \DomainException('Branding requires an image.');
             $draft=Content::draft()['data'];$url='/manor/media/'.$asset['storage_name'];
             foreach($draft['media'] as $entry)if(($entry['url']??'')===$url&&($entry['section']??'')===$section)return;

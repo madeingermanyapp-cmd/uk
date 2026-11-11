@@ -72,6 +72,9 @@ s,html,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':csrf,'action
 s,_,_,_,_=public.req('/manor/media/'+asset+'.png');check(s==404,'approval alone does not publish media')
 s,html,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':csrf,'action':'media_assign','media_id':asset,'section':'hero'});check(s==200,'library image can be assigned to a website section')
 s,_,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':csrf,'action':'media_assign','media_id':asset,'section':'not-a-section'});check(s==422,'unknown image placement is rejected')
+s,html,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':csrf,'action':'media_assign','media_id':asset,'section':'gallery'});check(s==200,'administrator assigns an image to the estate gallery')
+s,html,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':csrf,'action':'media_assign','media_id':asset,'section':'grounds'});check(s==200,'administrator assigns an image to the lake and gardens section')
+
 # Bring this synthetic hero ahead of any pre-existing property photos; restore afterward.
 s,html,_,_,_=admin.req('/admin/manor/settings/media')
 hero=next(p for p in re.findall(r'<article class="panel media-placement">.*?</article>',html,re.S) if '<h3>Hero / main photograph</h3>' in p and '/manor/media/'+asset+'.png' in p)
@@ -89,6 +92,9 @@ s,_,_,_,_=public.req('/manor/media/'+asset+'.png');check(s==200,'published appro
 s,html,_,_,_=admin.req('/admin/manor/settings/media',{'_csrf_token':csrf,'action':'media_review','media_id':asset,'alt':'Updated draft alt','rights':'Synthetic pixel created by automated test','approved':'1'});check(s==200,'approved published media can receive draft metadata edits')
 s,_,_,_,_=public.req('/manor/media/'+asset+'.png');check(s==200,'draft metadata edits do not take approved published media offline')
 s,live,_,_,_=public.req('/?lang=en');check('/manor/media/'+asset+'.png' in live,'assigned published hero is visible to visitors')
+check('id="grounds"' in live and 'id="gallery"' in live and 'data-gallery-open' in live,'published grounds and enlarging gallery render')
+check('/manor/gallery.js' in live,'accessible gallery enhancement is loaded from the local application')
+
 s,html,_,_,_=admin.req('/admin/manor/settings/media')
 placements=re.findall(r'<article class="panel media-placement">.*?</article>',html,re.S)
 hero=next((p for p in placements if '<h3>Hero / main photograph</h3>' in p),'')

@@ -99,8 +99,15 @@ final class Invitations
     public static function qr(array $guest): string
     {
         Settings::flag('invitations');Settings::flag('qr_attendance');
-        $code=new QrCode(data:self::links($guest)['check_in'],size:300,margin:16);
-        return (new PngWriter())->write($code)->getString();
+        $url=self::links($guest)['check_in'];$writer=new PngWriter();
+        // Keep a generous quiet zone and verify readability with the staff scanner.
+        // Different correction levels produce different masks if the decoder rejects one.
+        foreach([\Endroid\QrCode\ErrorCorrectionLevel::Low,\Endroid\QrCode\ErrorCorrectionLevel::Medium,\Endroid\QrCode\ErrorCorrectionLevel::Quartile,\Endroid\QrCode\ErrorCorrectionLevel::High] as $level){
+            $result=$writer->write(new QrCode(data:$url,errorCorrectionLevel:$level,size:300,margin:40));
+            try{$writer->validateResult($result,$url);return $result->getString();}
+            catch(\Endroid\QrCode\Exception\ValidationException){/* Never log capability data in decoder exceptions. */}
+        }
+        throw new \RuntimeException('QR generation validation failed.');
     }
     public static function report(string $requestId): array
     {

@@ -2989,7 +2989,7 @@
     },
     "POST /admin/manor/settings/{section}": {
       "handler": "App\\Manor\\SettingsController::save",
-      "source_hash": "4bf8c8f3ae98a1ce38647483be79fdb2f14238362aee5016d5e766ab28dec8d9",
+      "source_hash": "dcc1405e328cfbfbf76d9ee751ca2441652f1385df6a6b629e7467e240fc015a",
       "disposition": "trusted_browser",
       "operations": [],
       "rationale": "Wonham venue workflows are browser-only: operator/capability authorization, CSRF and shared-inventory workflows have no agent operation adapter. Legacy agent writes are disabled by Manor Guard. This is an explicit API exclusion, not an agent parity claim.",
